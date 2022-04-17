@@ -3,7 +3,7 @@ using MediatR;
 
 namespace EveBuyback.App;
 
-public record BuybackQuery(IEnumerable<BuybackItem> Items) : IRequest<decimal>;
+public record BuybackQuery(string stationName, IEnumerable<BuybackItem> Items) : IRequest<decimal>;
 
 public record BuybackItem(string ItemTypeName, int Volume);
 
@@ -13,10 +13,10 @@ internal class BuybackQueryHandler : IRequestHandler<BuybackQuery, decimal>
     {
         await Task.CompletedTask;
 
-        var aggregate = new RegionOrderSummaryAggregate(
+        var aggregate = new StationOrderSummaryAggregate(
             itemTypeIdLookup: new Dictionary<string, int>(),
             orderSummaryLookup: new Dictionary<int, OrderSummary>(),
-            regionId: 10000002
+            station: new Station(10000002, 60003760, "Jita")
         );
 
         var currentDateTime = DateTime.UtcNow;

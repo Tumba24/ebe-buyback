@@ -1,7 +1,7 @@
 namespace EveBuyback.Domain;
 
 public record OrderSummary(
-    bool IsValid,
+    bool ShouldBeUsedForBuybackCalculations,
     bool IsBuyOrder,
     decimal Price,
     int ItemTypeId,

@@ -1,22 +1,21 @@
 namespace EveBuyback.Domain;
 
-public class RegionOrderSummaryAggregate
+public class StationOrderSummaryAggregate
 {
     private readonly IList<object> _domainEvents = new List<object>();
     private readonly IDictionary<int, OrderSummary> _orderSummaryLookup;
     private readonly IDictionary<string, int> _itemTypeIdLookup;
-    private readonly int _regionId;
+    private readonly Station _station;
     private readonly IList<OrderSummary> _updatedOrderSummaries = new List<OrderSummary>();
 
-    public RegionOrderSummaryAggregate(
+    public StationOrderSummaryAggregate(
         IDictionary<string, int> itemTypeIdLookup,
         IDictionary<int, OrderSummary> orderSummaryLookup,
-        int regionId)
+        Station station)
     {
         _itemTypeIdLookup = itemTypeIdLookup ?? throw new ArgumentNullException(nameof(itemTypeIdLookup));
         _orderSummaryLookup = orderSummaryLookup ?? throw new ArgumentNullException(nameof(orderSummaryLookup));
-
-        _regionId = regionId;
+        _station = station ?? throw new ArgumentNullException(nameof(station));
     }
 
     public IEnumerable<object> DomainEvents => _domainEvents.ToArray();
@@ -32,7 +31,7 @@ public class RegionOrderSummaryAggregate
             return;
         }
 
-        if (_orderSummaryLookup.TryGetValue(itemTypeId, out var summary) && 
+        if (_orderSummaryLookup.TryGetValue(itemTypeId, out var summary) &&
             summary.ExpirationDateTime > currentDateTime && 
             summary.VolumeRemaining >= volume)
         {
@@ -47,6 +46,7 @@ public class RegionOrderSummaryAggregate
     {
         orders = orders?
             .Where(o => 
+                o.LocationId == _station.LocationId &&
                 o.IsBuyOrder == true &&
                 o.IssuedOnDateTime.AddDays(o.Duration) >= currentDateTime.AddDays(1) &&
                 o.MinVolume < volume)?
@@ -81,7 +81,7 @@ public class RegionOrderSummaryAggregate
         }
 
         UpdateOrderSummary(new OrderSummary(
-            IsValid: true,
+            ShouldBeUsedForBuybackCalculations: true,
             IsBuyOrder: true,
             Price: maxPrice,
             ItemTypeId: itemTypeId,
