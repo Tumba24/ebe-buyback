@@ -1,4 +1,4 @@
-Feature: Station order summary
+Feature: Station order summary refreshing
 
 Background:
     Given station:
@@ -27,7 +27,7 @@ Scenario: Do not refresh if current summary is still ok to use even if it should
     When refreshing order summary for item 'Veldspar' and a volume of '10' at '2022-04-17T00:00:00'
     Then refresh aborted because summary is still valid
 
-Scenario: Refresh if no current summary exists                         | 2022-04-18T00:00:00  |
+Scenario: Refresh if no current summary exists
     When refreshing order summary for item 'Veldspar' and a volume of '10' at '2022-04-18T00:00:01'
     Then refresh marked current summary version as invalid
 
@@ -38,9 +38,9 @@ Scenario: Refresh if current summary is expired
     When refreshing order summary for item 'Veldspar' and a volume of '10' at '2022-04-18T00:00:01'
     Then refresh marked current summary version as invalid
 
-Scenario: Refresh if there is not enough remaining volume
+Scenario: Refresh if there is not enough volume remaining
     Given order summary:
     | Item         | Price | VolumeRemaining | ShouldBeUsedForBuybackCalculations | ExpirationDateTime   |
-    | Veldspar     | 0.10  | 1               | true                               | 2022-04-18T00:00:00  |
+    | Veldspar     | 0.10  | 9               | true                               | 2022-04-18T00:00:00  |
     When refreshing order summary for item 'Veldspar' and a volume of '10' at '2022-04-17T00:00:00'
     Then refresh marked current summary version as invalid

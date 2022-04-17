@@ -20,22 +20,22 @@ namespace EveBuyback.Domain.Specs.Features
     [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "3.9.0.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [NUnit.Framework.TestFixtureAttribute()]
-    [NUnit.Framework.DescriptionAttribute("Station order summary")]
-    public partial class StationOrderSummaryFeature
+    [NUnit.Framework.DescriptionAttribute("Station order summary refreshing")]
+    public partial class StationOrderSummaryRefreshingFeature
     {
         
         private TechTalk.SpecFlow.ITestRunner testRunner;
         
         private static string[] featureTags = ((string[])(null));
         
-#line 1 "StationOrderSummary.feature"
+#line 1 "StationOrderSummaryRefreshing.feature"
 #line hidden
         
         [NUnit.Framework.OneTimeSetUpAttribute()]
         public virtual void FeatureSetup()
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
-            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Features", "Station order summary", null, ProgrammingLanguage.CSharp, featureTags);
+            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Features", "Station order summary refreshing", null, ProgrammingLanguage.CSharp, featureTags);
             testRunner.OnFeatureStart(featureInfo);
         }
         
@@ -234,14 +234,12 @@ this.FeatureBackground();
         }
         
         [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Refresh if no current summary exists                         | 2022-04-18T00:00:0" +
-            "0  |")]
-        public void RefreshIfNoCurrentSummaryExists2022_04_18T000000()
+        [NUnit.Framework.DescriptionAttribute("Refresh if no current summary exists")]
+        public void RefreshIfNoCurrentSummaryExists()
         {
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Refresh if no current summary exists                         | 2022-04-18T00:00:0" +
-                    "0  |", null, tagsOfScenario, argumentsOfScenario, featureTags);
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Refresh if no current summary exists", null, tagsOfScenario, argumentsOfScenario, featureTags);
 #line 30
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
@@ -313,12 +311,12 @@ this.FeatureBackground();
         }
         
         [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Refresh if there is not enough remaining volume")]
-        public void RefreshIfThereIsNotEnoughRemainingVolume()
+        [NUnit.Framework.DescriptionAttribute("Refresh if there is not enough volume remaining")]
+        public void RefreshIfThereIsNotEnoughVolumeRemaining()
         {
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Refresh if there is not enough remaining volume", null, tagsOfScenario, argumentsOfScenario, featureTags);
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Refresh if there is not enough volume remaining", null, tagsOfScenario, argumentsOfScenario, featureTags);
 #line 41
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
@@ -341,7 +339,7 @@ this.FeatureBackground();
                 table6.AddRow(new string[] {
                             "Veldspar",
                             "0.10",
-                            "1",
+                            "9",
                             "true",
                             "2022-04-18T00:00:00"});
 #line 42

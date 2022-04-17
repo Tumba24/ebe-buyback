@@ -1,3 +1,3 @@
 namespace EveBuyback.Domain;
 
-public record InvalidOrderSummaryNoticedEvent(int ItemTypeId, string ItemTypeName);
+public record InvalidOrderSummaryNoticedEvent(ItemType Item);

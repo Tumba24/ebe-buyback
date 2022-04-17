@@ -13,5 +13,6 @@ public record Order(
     int SystemId,
     int ItemTypeId,
     int VolumeRemaining,
-    int VolumeTotal
+    int VolumeTotal,
+    DateTime ExpiresOnDateTime
 );

@@ -34,8 +34,7 @@ internal class BuybackQueryHandler : IRequestHandler<BuybackQuery, decimal>
                 throw new InvalidOperationException();
             
             aggregate.UpdateOrderSummary(
-                invalidEvent.ItemTypeId, 
-                invalidEvent.ItemTypeName, 
+                invalidEvent.Item,
                 1000000, 
                 new Order[0], 
                 currentDateTime);

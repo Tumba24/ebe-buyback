@@ -39,10 +39,10 @@ public class StationOrderSummaryAggregate
             return;
         }
 
-        _domainEvents.Add(new InvalidOrderSummaryNoticedEvent(itemTypeId, itemTypeName));
+        _domainEvents.Add(new InvalidOrderSummaryNoticedEvent(new ItemType(itemTypeId, itemTypeName)));
     }
 
-    public void UpdateOrderSummary(int itemTypeId, string itemTypeName, int volume, IEnumerable<Order> orders, DateTime currentDateTime)
+    public void UpdateOrderSummary(ItemType item, int volume, IEnumerable<Order> orders, DateTime currentDateTime)
     {
         orders = orders?
             .Where(o => 
@@ -54,7 +54,7 @@ public class StationOrderSummaryAggregate
 
         if (!orders.Any())
         {
-            UpdateOrderSummary(new OrderSummary(false, true, 0, itemTypeId, itemTypeName, 0, currentDateTime.AddSeconds(2)));
+            UpdateOrderSummary(new OrderSummary(false, true, 0, item, 0, currentDateTime.AddSeconds(2)));
             return;
         }
 
@@ -73,10 +73,8 @@ public class StationOrderSummaryAggregate
 
             totalOrderVolumeRemaining += order.VolumeRemaining;
 
-            var orderExpirationDate = order.IssuedOnDateTime.AddDays(order.Duration);
-
-            firstOrderExpirationDateTime = orderExpirationDate < firstOrderExpirationDateTime ? 
-                orderExpirationDate : 
+            firstOrderExpirationDateTime = order.ExpiresOnDateTime < firstOrderExpirationDateTime ? 
+                order.ExpiresOnDateTime : 
                 firstOrderExpirationDateTime;
         }
 
@@ -84,8 +82,7 @@ public class StationOrderSummaryAggregate
             ShouldBeUsedForBuybackCalculations: true,
             IsBuyOrder: true,
             Price: maxPrice,
-            ItemTypeId: itemTypeId,
-            ItemTypeName: itemTypeName,
+            Item: item,
             VolumeRemaining: totalOrderVolumeRemaining,
             ExpirationDateTime : firstOrderExpirationDateTime
         ));

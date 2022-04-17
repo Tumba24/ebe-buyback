@@ -4,8 +4,7 @@ public record OrderSummary(
     bool ShouldBeUsedForBuybackCalculations,
     bool IsBuyOrder,
     decimal Price,
-    int ItemTypeId,
-    string ItemTypeName,
+    ItemType Item,
     int VolumeRemaining,
     DateTime ExpirationDateTime
 );
