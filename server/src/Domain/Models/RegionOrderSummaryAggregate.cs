@@ -33,8 +33,8 @@ public class RegionOrderSummaryAggregate
         }
 
         if (_orderSummaryLookup.TryGetValue(itemTypeId, out var summary) && 
-            summary.ExpirationDateTime < currentDateTime && 
-            summary.VolumeRemaining <= volume)
+            summary.ExpirationDateTime > currentDateTime && 
+            summary.VolumeRemaining >= volume)
         {
             _domainEvents.Add(new OrderSummaryRefreshAbortedEvent.OldSummaryIsStillValid(summary));
             return;
@@ -94,6 +94,6 @@ public class RegionOrderSummaryAggregate
     private void UpdateOrderSummary(OrderSummary orderSummary)
     {
         _updatedOrderSummaries.Add(orderSummary);
-        _domainEvents.Add(new OrderSummaryUpatedEvent(orderSummary));
+        _domainEvents.Add(new OrderSummaryUpdatedEvent(orderSummary));
     }
 }

@@ -96,7 +96,7 @@ namespace EveBuyback.Domain.Specs.Features
                         "0.10",
                         "1000000",
                         "true",
-                        "2500-01-01T:00:00:00"});
+                        "2022-04-18T00:00:00"});
 #line 6
     testRunner.And("order summary:", ((string)(null)), table1, "And ");
 #line hidden
@@ -123,7 +123,8 @@ this.ScenarioInitialize(scenarioInfo);
 this.FeatureBackground();
 #line hidden
 #line 11
-    testRunner.When("refreshing order summary for item \'Item 1\' and a volume of \'10\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+    testRunner.When("refreshing order summary for item \'Item 1\' and a volume of \'10\' at \'2022-04-17T00" +
+                        ":00:00\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
 #line 12
     testRunner.Then("refresh aborted because summary is still valid \'true\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");

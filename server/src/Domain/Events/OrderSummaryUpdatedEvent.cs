@@ -1,3 +1,3 @@
 namespace EveBuyback.Domain;
 
-public record OrderSummaryUpatedEvent(OrderSummary OrderSummary);
+public record OrderSummaryUpdatedEvent(OrderSummary OrderSummary);
