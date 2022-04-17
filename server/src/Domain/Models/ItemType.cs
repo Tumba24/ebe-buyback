@@ -1,6 +1,6 @@
 namespace EveBuyback.Domain;
 
-public record OrderType(
+public record ItemType(
     int Id,
     string Name
 );

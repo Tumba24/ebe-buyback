@@ -11,7 +11,7 @@ public record Order(
     decimal Price,
     string Range,
     int SystemId,
-    int OrderTypeId,
+    int ItemTypeId,
     int VolumeRemaining,
     int VolumeTotal
 );

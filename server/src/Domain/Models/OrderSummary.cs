@@ -4,8 +4,8 @@ public record OrderSummary(
     bool IsValid,
     bool IsBuyOrder,
     decimal Price,
-    int OrderTypeId,
-    string OrderTypeName,
+    int ItemTypeId,
+    string ItemTypeName,
     int VolumeRemaining,
     DateTime ExpirationDateTime
 );

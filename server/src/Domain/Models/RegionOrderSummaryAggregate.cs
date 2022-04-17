@@ -3,21 +3,18 @@ namespace EveBuyback.Domain;
 public class RegionOrderSummaryAggregate
 {
     private readonly IList<object> _domainEvents = new List<object>();
-    private readonly IDictionary<int, string> _orderNameLookup;
     private readonly IDictionary<int, OrderSummary> _orderSummaryLookup;
-    private readonly IDictionary<string, int> _orderTypeIdLookup;
+    private readonly IDictionary<string, int> _itemTypeIdLookup;
     private readonly int _regionId;
     private readonly IList<OrderSummary> _updatedOrderSummaries = new List<OrderSummary>();
 
     public RegionOrderSummaryAggregate(
-        IDictionary<int, string> orderNameLookup,
+        IDictionary<string, int> itemTypeIdLookup,
         IDictionary<int, OrderSummary> orderSummaryLookup,
-        IDictionary<string, int> orderTypeIdLookup,
         int regionId)
     {
-        _orderNameLookup = orderNameLookup ?? throw new ArgumentNullException(nameof(orderNameLookup));
+        _itemTypeIdLookup = itemTypeIdLookup ?? throw new ArgumentNullException(nameof(itemTypeIdLookup));
         _orderSummaryLookup = orderSummaryLookup ?? throw new ArgumentNullException(nameof(orderSummaryLookup));
-        _orderTypeIdLookup = orderTypeIdLookup ?? throw new ArgumentNullException(nameof(orderTypeIdLookup));
 
         _regionId = regionId;
     }
@@ -25,46 +22,46 @@ public class RegionOrderSummaryAggregate
     public IEnumerable<object> DomainEvents => _domainEvents.ToArray();
     public IEnumerable<OrderSummary> UpdatedOrderSummaries => _updatedOrderSummaries.ToArray();
 
-    public void RefreshOrderSummary(string orderTypeName, int volume)
+    public void RefreshOrderSummary(string itemTypeName, int volume, DateTime currentDateTime)
     {
-        if (orderTypeName is null) throw new ArgumentNullException(orderTypeName);
+        if (itemTypeName is null) throw new ArgumentNullException(itemTypeName);
 
-        if (!_orderTypeIdLookup.TryGetValue(orderTypeName, out var orderTypeId))
+        if (!_itemTypeIdLookup.TryGetValue(itemTypeName, out var itemTypeId))
         {
-            _domainEvents.Add(new OrderSummaryRefreshAbortedEvent.InvalidOrderTypeName(orderTypeName));
+            _domainEvents.Add(new OrderSummaryRefreshAbortedEvent.InvalidItemTypeName(itemTypeName));
             return;
         }
 
-        if (_orderSummaryLookup.TryGetValue(orderTypeId, out var summary) && 
-            summary.ExpirationDateTime < DateTime.UtcNow && 
+        if (_orderSummaryLookup.TryGetValue(itemTypeId, out var summary) && 
+            summary.ExpirationDateTime < currentDateTime && 
             summary.VolumeRemaining <= volume)
         {
             _domainEvents.Add(new OrderSummaryRefreshAbortedEvent.OldSummaryIsStillValid(summary));
             return;
         }
 
-        _domainEvents.Add(new InvalidOrderSummaryNoticedEvent(orderTypeId, orderTypeName));
+        _domainEvents.Add(new InvalidOrderSummaryNoticedEvent(itemTypeId, itemTypeName));
     }
 
-    public void UpdateOrderSummary(int orderTypeId, string orderTypeName, int volume, IEnumerable<Order> orders)
+    public void UpdateOrderSummary(int itemTypeId, string itemTypeName, int volume, IEnumerable<Order> orders, DateTime currentDateTime)
     {
         orders = orders?
             .Where(o => 
                 o.IsBuyOrder == true &&
-                o.IssuedOnDateTime.AddDays(o.Duration) >= DateTime.UtcNow.AddDays(1) &&
+                o.IssuedOnDateTime.AddDays(o.Duration) >= currentDateTime.AddDays(1) &&
                 o.MinVolume < volume)?
             .OrderByDescending(o => o.Price) ?? Enumerable.Empty<Order>();
 
         if (!orders.Any())
         {
-            UpdateOrderSummary(new OrderSummary(false, true, 0, orderTypeId, orderTypeName, 0, DateTime.UtcNow.AddSeconds(2)));
+            UpdateOrderSummary(new OrderSummary(false, true, 0, itemTypeId, itemTypeName, 0, currentDateTime.AddSeconds(2)));
             return;
         }
 
         decimal maxPrice = 0;
         var volumeToFill = volume;
         int totalOrderVolumeRemaining = 0;
-        DateTime firstOrderExpirationDateTime = DateTime.UtcNow.AddSeconds(2);
+        DateTime firstOrderExpirationDateTime = currentDateTime.AddSeconds(2);
 
         foreach (var order in orders)
         {
@@ -87,8 +84,8 @@ public class RegionOrderSummaryAggregate
             IsValid: true,
             IsBuyOrder: true,
             Price: maxPrice,
-            OrderTypeId: orderTypeId,
-            OrderTypeName: orderTypeName,
+            ItemTypeId: itemTypeId,
+            ItemTypeName: itemTypeName,
             VolumeRemaining: totalOrderVolumeRemaining,
             ExpirationDateTime : firstOrderExpirationDateTime
         ));
