@@ -14,9 +14,6 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./
 
     steps:
     - uses: actions/checkout@v3
@@ -26,13 +23,13 @@ jobs:
         dotnet-version: ${{ env.DOTNET_VERSION }}
 
     - name: Install dependencies
-      run: dotnet restore ./server/tests/domain
+      run: dotnet restore server/tests/domain
       
     - name: Build
-      run: dotnet build ./server/tests/domain --configuration Release --no-restore
+      run: dotnet build server/tests/domain --configuration Release --no-restore
     
     - name: Test
-      run: dotnet test ./server/tests/domain --no-restore --verbosity normal
+      run: dotnet test server/tests/domain --no-restore --verbosity normal
 
     - name: Build the Docker image
       working-directory: ./server/src
