@@ -23,13 +23,13 @@ jobs:
         dotnet-version: ${{ env.DOTNET_VERSION }}
 
     - name: Install dependencies
-      run: dotnet restore server/tests/domain/EveBuyback.Domain.Specs.csproj
+      run: dotnet restore server/tests/Domain/EveBuyback.Domain.Specs.csproj
       
     - name: Build
-      run: dotnet build server/tests/domain/EveBuyback.Domain.Specs.csproj --configuration Release --no-restore
+      run: dotnet build server/tests/Domain/EveBuyback.Domain.Specs.csproj --configuration Release --no-restore
     
     - name: Test
-      run: dotnet test server/tests/domain/EveBuyback.Domain.Specs.csproj --no-restore --verbosity normal
+      run: dotnet test server/tests/Domain/EveBuyback.Domain.Specs.csproj --no-restore --verbosity normal
 
     - name: Build the Docker image
       working-directory: ./server/src
