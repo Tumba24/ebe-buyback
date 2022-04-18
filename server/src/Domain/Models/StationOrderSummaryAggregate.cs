@@ -49,22 +49,53 @@ public class StationOrderSummaryAggregate
                 o.LocationId == _station.LocationId &&
                 o.IsBuyOrder == true &&
                 o.IssuedOnDateTime.AddDays(o.Duration) >= currentDateTime.AddDays(1) &&
-                o.MinVolume < volume)?
-            .OrderByDescending(o => o.Price) ?? Enumerable.Empty<Order>();
+                o.MinVolume < volume &&
+                o.ExpiresOnDateTime > currentDateTime)?
+            .OrderByDescending(o => o.Price)
+            .OrderByDescending(o => o.ExpiresOnDateTime) ?? Enumerable.Empty<Order>();
 
-        if (!orders.Any())
+        int ordersThatShouldBeSkipped = 0;
+        int loopBreaker = 15;
+        int loopCount = 0;
+
+        while ((ordersThatShouldBeSkipped = UpdateOrderSummary(item, volume, orders, currentDateTime, ordersThatShouldBeSkipped)) != 0)
+        {
+            if (loopCount >= loopBreaker)
+                break;
+
+            loopCount++;
+        }
+    }
+
+    private int UpdateOrderSummary(ItemType item, int volume, IEnumerable<Order> orders, DateTime currentDateTime, int ordersToSkip)
+    {
+        var ordersToConsider = orders.Skip(ordersToSkip);
+
+        if (!ordersToConsider.Any())
         {
             UpdateOrderSummary(new OrderSummary(false, true, 0, item, 0, currentDateTime.AddSeconds(2)));
-            return;
+            return 0;
         }
 
         decimal maxPrice = 0;
         var volumeToFill = volume;
         int totalOrderVolumeRemaining = 0;
         DateTime firstOrderExpirationDateTime = currentDateTime.AddSeconds(2);
+        var orderIndex = 0;
 
-        foreach (var order in orders)
+        foreach (var order in ordersToConsider)
         {
+            if (order.MinVolume > volumeToFill)
+            {
+                if (orderIndex > 0 && order.MinVolume < volume)
+                {
+                    return orderIndex;
+                }
+                
+                continue;
+            }
+
+            orderIndex++;
             maxPrice = order.Price;
 
             volumeToFill -= volumeToFill > order.VolumeRemaining ? 
@@ -76,16 +107,32 @@ public class StationOrderSummaryAggregate
             firstOrderExpirationDateTime = order.ExpiresOnDateTime < firstOrderExpirationDateTime ? 
                 order.ExpiresOnDateTime : 
                 firstOrderExpirationDateTime;
+
+            if (volumeToFill < 1)
+            {
+                UpdateOrderSummary(new OrderSummary(
+                    ShouldBeUsedForBuybackCalculations: true,
+                    IsBuyOrder: true,
+                    Price: maxPrice,
+                    Item: item,
+                    VolumeRemaining: totalOrderVolumeRemaining,
+                    ExpirationDateTime : firstOrderExpirationDateTime
+                ));
+
+                return 0;
+            }
         }
 
         UpdateOrderSummary(new OrderSummary(
-            ShouldBeUsedForBuybackCalculations: true,
+            ShouldBeUsedForBuybackCalculations: false,
             IsBuyOrder: true,
             Price: maxPrice,
             Item: item,
             VolumeRemaining: totalOrderVolumeRemaining,
             ExpirationDateTime : firstOrderExpirationDateTime
         ));
+
+        return 0;
     }
 
     private void UpdateOrderSummary(OrderSummary orderSummary)

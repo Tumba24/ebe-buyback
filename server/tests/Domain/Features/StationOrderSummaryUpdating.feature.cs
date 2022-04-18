@@ -137,12 +137,12 @@ this.FeatureBackground();
         }
         
         [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Can create missing order summary usinig order informaton")]
-        public void CanCreateMissingOrderSummaryUsinigOrderInformaton()
+        [NUnit.Framework.DescriptionAttribute("Can create missing order summary using order informaton")]
+        public void CanCreateMissingOrderSummaryUsingOrderInformaton()
         {
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Can create missing order summary usinig order informaton", null, tagsOfScenario, argumentsOfScenario, featureTags);
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Can create missing order summary using order informaton", null, tagsOfScenario, argumentsOfScenario, featureTags);
 #line 15
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
@@ -195,6 +195,798 @@ this.FeatureBackground();
                             "2022-04-18T00:00:01"});
 #line 20
     testRunner.Then("updated order summary is:", ((string)(null)), table10, "Then ");
+#line hidden
+            }
+            this.ScenarioCleanup();
+        }
+        
+        [NUnit.Framework.TestAttribute()]
+        [NUnit.Framework.DescriptionAttribute("Order summary created using highest price")]
+        public void OrderSummaryCreatedUsingHighestPrice()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Order summary created using highest price", null, tagsOfScenario, argumentsOfScenario, featureTags);
+#line 24
+this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            if ((TagHelper.ContainsIgnoreTag(tagsOfScenario) || TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                this.ScenarioStart();
+#line 3
+this.FeatureBackground();
+#line hidden
+                TechTalk.SpecFlow.Table table11 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Item",
+                            "IsBuyOrder",
+                            "Price",
+                            "DurationInDays",
+                            "IssuedOnDateTime",
+                            "MinVolume",
+                            "VolumeRemaining",
+                            "ExpiresOnDateTime"});
+                table11.AddRow(new string[] {
+                            "Veldspar",
+                            "true",
+                            "10.00",
+                            "3",
+                            "2022-04-18T00:00:00",
+                            "1",
+                            "100",
+                            "2022-04-18T00:00:01"});
+#line 25
+    testRunner.Given("order:", ((string)(null)), table11, "Given ");
+#line hidden
+                TechTalk.SpecFlow.Table table12 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Item",
+                            "IsBuyOrder",
+                            "Price",
+                            "DurationInDays",
+                            "IssuedOnDateTime",
+                            "MinVolume",
+                            "VolumeRemaining",
+                            "ExpiresOnDateTime"});
+                table12.AddRow(new string[] {
+                            "Veldspar",
+                            "true",
+                            "11.00",
+                            "3",
+                            "2022-04-18T00:00:00",
+                            "1",
+                            "100",
+                            "2022-04-18T00:00:01"});
+#line 28
+    testRunner.And("order:", ((string)(null)), table12, "And ");
+#line hidden
+#line 31
+    testRunner.When("updating order summary for item \'Veldspar\' and a volume of \'10\' at \'2022-04-18T00" +
+                        ":00:00\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line hidden
+                TechTalk.SpecFlow.Table table13 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Item",
+                            "Price",
+                            "VolumeRemaining",
+                            "ShouldBeUsedForBuybackCalculations",
+                            "ExpirationDateTime"});
+                table13.AddRow(new string[] {
+                            "Veldspar",
+                            "11.00",
+                            "100",
+                            "true",
+                            "2022-04-18T00:00:01"});
+#line 32
+    testRunner.Then("updated order summary is:", ((string)(null)), table13, "Then ");
+#line hidden
+            }
+            this.ScenarioCleanup();
+        }
+        
+        [NUnit.Framework.TestAttribute()]
+        [NUnit.Framework.DescriptionAttribute("Order summary created using highest price for total volume remaining")]
+        public void OrderSummaryCreatedUsingHighestPriceForTotalVolumeRemaining()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Order summary created using highest price for total volume remaining", null, tagsOfScenario, argumentsOfScenario, featureTags);
+#line 36
+this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            if ((TagHelper.ContainsIgnoreTag(tagsOfScenario) || TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                this.ScenarioStart();
+#line 3
+this.FeatureBackground();
+#line hidden
+                TechTalk.SpecFlow.Table table14 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Item",
+                            "IsBuyOrder",
+                            "Price",
+                            "DurationInDays",
+                            "IssuedOnDateTime",
+                            "MinVolume",
+                            "VolumeRemaining",
+                            "ExpiresOnDateTime"});
+                table14.AddRow(new string[] {
+                            "Veldspar",
+                            "true",
+                            "10.00",
+                            "3",
+                            "2022-04-18T00:00:00",
+                            "1",
+                            "100",
+                            "2022-04-18T00:00:01"});
+#line 37
+    testRunner.Given("order:", ((string)(null)), table14, "Given ");
+#line hidden
+                TechTalk.SpecFlow.Table table15 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Item",
+                            "IsBuyOrder",
+                            "Price",
+                            "DurationInDays",
+                            "IssuedOnDateTime",
+                            "MinVolume",
+                            "VolumeRemaining",
+                            "ExpiresOnDateTime"});
+                table15.AddRow(new string[] {
+                            "Veldspar",
+                            "true",
+                            "11.00",
+                            "3",
+                            "2022-04-18T00:00:00",
+                            "1",
+                            "100",
+                            "2022-04-18T00:00:01"});
+#line 40
+    testRunner.And("order:", ((string)(null)), table15, "And ");
+#line hidden
+#line 43
+    testRunner.When("updating order summary for item \'Veldspar\' and a volume of \'101\' at \'2022-04-18T0" +
+                        "0:00:00\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line hidden
+                TechTalk.SpecFlow.Table table16 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Item",
+                            "Price",
+                            "VolumeRemaining",
+                            "ShouldBeUsedForBuybackCalculations",
+                            "ExpirationDateTime"});
+                table16.AddRow(new string[] {
+                            "Veldspar",
+                            "10.00",
+                            "200",
+                            "true",
+                            "2022-04-18T00:00:01"});
+#line 44
+    testRunner.Then("updated order summary is:", ((string)(null)), table16, "Then ");
+#line hidden
+            }
+            this.ScenarioCleanup();
+        }
+        
+        [NUnit.Framework.TestAttribute()]
+        [NUnit.Framework.DescriptionAttribute("Order summary should not be used if there is not enough total volume remaining")]
+        public void OrderSummaryShouldNotBeUsedIfThereIsNotEnoughTotalVolumeRemaining()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Order summary should not be used if there is not enough total volume remaining", null, tagsOfScenario, argumentsOfScenario, featureTags);
+#line 48
+this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            if ((TagHelper.ContainsIgnoreTag(tagsOfScenario) || TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                this.ScenarioStart();
+#line 3
+this.FeatureBackground();
+#line hidden
+                TechTalk.SpecFlow.Table table17 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Item",
+                            "IsBuyOrder",
+                            "Price",
+                            "DurationInDays",
+                            "IssuedOnDateTime",
+                            "MinVolume",
+                            "VolumeRemaining",
+                            "ExpiresOnDateTime"});
+                table17.AddRow(new string[] {
+                            "Veldspar",
+                            "true",
+                            "10.00",
+                            "3",
+                            "2022-04-18T00:00:00",
+                            "1",
+                            "100",
+                            "2022-04-18T00:00:01"});
+#line 49
+    testRunner.Given("order:", ((string)(null)), table17, "Given ");
+#line hidden
+                TechTalk.SpecFlow.Table table18 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Item",
+                            "IsBuyOrder",
+                            "Price",
+                            "DurationInDays",
+                            "IssuedOnDateTime",
+                            "MinVolume",
+                            "VolumeRemaining",
+                            "ExpiresOnDateTime"});
+                table18.AddRow(new string[] {
+                            "Veldspar",
+                            "true",
+                            "11.00",
+                            "3",
+                            "2022-04-18T00:00:00",
+                            "1",
+                            "100",
+                            "2022-04-18T00:00:01"});
+#line 52
+    testRunner.And("order:", ((string)(null)), table18, "And ");
+#line hidden
+#line 55
+    testRunner.When("updating order summary for item \'Veldspar\' and a volume of \'201\' at \'2022-04-18T0" +
+                        "0:00:00\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line hidden
+                TechTalk.SpecFlow.Table table19 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Item",
+                            "Price",
+                            "VolumeRemaining",
+                            "ShouldBeUsedForBuybackCalculations",
+                            "ExpirationDateTime"});
+                table19.AddRow(new string[] {
+                            "Veldspar",
+                            "10.00",
+                            "200",
+                            "false",
+                            "2022-04-18T00:00:01"});
+#line 56
+    testRunner.Then("updated order summary is:", ((string)(null)), table19, "Then ");
+#line hidden
+            }
+            this.ScenarioCleanup();
+        }
+        
+        [NUnit.Framework.TestAttribute()]
+        [NUnit.Framework.DescriptionAttribute("Order summary created using latest expiration date time if price is the same")]
+        public void OrderSummaryCreatedUsingLatestExpirationDateTimeIfPriceIsTheSame()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Order summary created using latest expiration date time if price is the same", null, tagsOfScenario, argumentsOfScenario, featureTags);
+#line 60
+this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            if ((TagHelper.ContainsIgnoreTag(tagsOfScenario) || TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                this.ScenarioStart();
+#line 3
+this.FeatureBackground();
+#line hidden
+                TechTalk.SpecFlow.Table table20 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Item",
+                            "IsBuyOrder",
+                            "Price",
+                            "DurationInDays",
+                            "IssuedOnDateTime",
+                            "MinVolume",
+                            "VolumeRemaining",
+                            "ExpiresOnDateTime"});
+                table20.AddRow(new string[] {
+                            "Veldspar",
+                            "true",
+                            "10.00",
+                            "3",
+                            "2022-04-18T00:00:00",
+                            "1",
+                            "100",
+                            "2022-04-18T00:00:01"});
+#line 61
+    testRunner.Given("order:", ((string)(null)), table20, "Given ");
+#line hidden
+                TechTalk.SpecFlow.Table table21 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Item",
+                            "IsBuyOrder",
+                            "Price",
+                            "DurationInDays",
+                            "IssuedOnDateTime",
+                            "MinVolume",
+                            "VolumeRemaining",
+                            "ExpiresOnDateTime"});
+                table21.AddRow(new string[] {
+                            "Veldspar",
+                            "true",
+                            "10.00",
+                            "3",
+                            "2022-04-18T00:00:00",
+                            "1",
+                            "100",
+                            "2022-04-18T00:00:02"});
+#line 64
+    testRunner.And("order:", ((string)(null)), table21, "And ");
+#line hidden
+#line 67
+    testRunner.When("updating order summary for item \'Veldspar\' and a volume of \'10\' at \'2022-04-18T00" +
+                        ":00:00\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line hidden
+                TechTalk.SpecFlow.Table table22 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Item",
+                            "Price",
+                            "VolumeRemaining",
+                            "ShouldBeUsedForBuybackCalculations",
+                            "ExpirationDateTime"});
+                table22.AddRow(new string[] {
+                            "Veldspar",
+                            "10.00",
+                            "100",
+                            "true",
+                            "2022-04-18T00:00:02"});
+#line 68
+    testRunner.Then("updated order summary is:", ((string)(null)), table22, "Then ");
+#line hidden
+            }
+            this.ScenarioCleanup();
+        }
+        
+        [NUnit.Framework.TestAttribute()]
+        [NUnit.Framework.DescriptionAttribute("Order summary created should group expirations together and use the first to matc" +
+            "h the specified volume")]
+        public void OrderSummaryCreatedShouldGroupExpirationsTogetherAndUseTheFirstToMatchTheSpecifiedVolume()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Order summary created should group expirations together and use the first to matc" +
+                    "h the specified volume", null, tagsOfScenario, argumentsOfScenario, featureTags);
+#line 72
+this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            if ((TagHelper.ContainsIgnoreTag(tagsOfScenario) || TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                this.ScenarioStart();
+#line 3
+this.FeatureBackground();
+#line hidden
+                TechTalk.SpecFlow.Table table23 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Item",
+                            "IsBuyOrder",
+                            "Price",
+                            "DurationInDays",
+                            "IssuedOnDateTime",
+                            "MinVolume",
+                            "VolumeRemaining",
+                            "ExpiresOnDateTime"});
+                table23.AddRow(new string[] {
+                            "Veldspar",
+                            "true",
+                            "10.00",
+                            "3",
+                            "2022-04-18T00:00:00",
+                            "1",
+                            "100",
+                            "2022-04-18T00:00:01"});
+#line 73
+    testRunner.Given("order:", ((string)(null)), table23, "Given ");
+#line hidden
+                TechTalk.SpecFlow.Table table24 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Item",
+                            "IsBuyOrder",
+                            "Price",
+                            "DurationInDays",
+                            "IssuedOnDateTime",
+                            "MinVolume",
+                            "VolumeRemaining",
+                            "ExpiresOnDateTime"});
+                table24.AddRow(new string[] {
+                            "Veldspar",
+                            "true",
+                            "10.00",
+                            "3",
+                            "2022-04-18T00:00:00",
+                            "1",
+                            "100",
+                            "2022-04-18T00:00:02"});
+#line 76
+    testRunner.And("order:", ((string)(null)), table24, "And ");
+#line hidden
+#line 79
+    testRunner.When("updating order summary for item \'Veldspar\' and a volume of \'101\' at \'2022-04-18T0" +
+                        "0:00:00\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line hidden
+                TechTalk.SpecFlow.Table table25 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Item",
+                            "Price",
+                            "VolumeRemaining",
+                            "ShouldBeUsedForBuybackCalculations",
+                            "ExpirationDateTime"});
+                table25.AddRow(new string[] {
+                            "Veldspar",
+                            "10.00",
+                            "200",
+                            "true",
+                            "2022-04-18T00:00:01"});
+#line 80
+    testRunner.Then("updated order summary is:", ((string)(null)), table25, "Then ");
+#line hidden
+            }
+            this.ScenarioCleanup();
+        }
+        
+        [NUnit.Framework.TestAttribute()]
+        [NUnit.Framework.DescriptionAttribute("Order summary should not consider orders that have already expired")]
+        public void OrderSummaryShouldNotConsiderOrdersThatHaveAlreadyExpired()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Order summary should not consider orders that have already expired", null, tagsOfScenario, argumentsOfScenario, featureTags);
+#line 84
+this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            if ((TagHelper.ContainsIgnoreTag(tagsOfScenario) || TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                this.ScenarioStart();
+#line 3
+this.FeatureBackground();
+#line hidden
+                TechTalk.SpecFlow.Table table26 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Item",
+                            "IsBuyOrder",
+                            "Price",
+                            "DurationInDays",
+                            "IssuedOnDateTime",
+                            "MinVolume",
+                            "VolumeRemaining",
+                            "ExpiresOnDateTime"});
+                table26.AddRow(new string[] {
+                            "Veldspar",
+                            "true",
+                            "10.00",
+                            "3",
+                            "2022-04-18T00:00:00",
+                            "1",
+                            "100",
+                            "2022-04-18T00:00:01"});
+#line 85
+    testRunner.Given("order:", ((string)(null)), table26, "Given ");
+#line hidden
+                TechTalk.SpecFlow.Table table27 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Item",
+                            "IsBuyOrder",
+                            "Price",
+                            "DurationInDays",
+                            "IssuedOnDateTime",
+                            "MinVolume",
+                            "VolumeRemaining",
+                            "ExpiresOnDateTime"});
+                table27.AddRow(new string[] {
+                            "Veldspar",
+                            "true",
+                            "11.00",
+                            "3",
+                            "2022-04-18T00:00:00",
+                            "1",
+                            "100",
+                            "2022-04-18T00:00:00"});
+#line 88
+    testRunner.And("order:", ((string)(null)), table27, "And ");
+#line hidden
+#line 91
+    testRunner.When("updating order summary for item \'Veldspar\' and a volume of \'100\' at \'2022-04-18T0" +
+                        "0:00:00\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line hidden
+                TechTalk.SpecFlow.Table table28 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Item",
+                            "Price",
+                            "VolumeRemaining",
+                            "ShouldBeUsedForBuybackCalculations",
+                            "ExpirationDateTime"});
+                table28.AddRow(new string[] {
+                            "Veldspar",
+                            "10.00",
+                            "100",
+                            "true",
+                            "2022-04-18T00:00:01"});
+#line 92
+    testRunner.Then("updated order summary is:", ((string)(null)), table28, "Then ");
+#line hidden
+            }
+            this.ScenarioCleanup();
+        }
+        
+        [NUnit.Framework.TestAttribute()]
+        [NUnit.Framework.DescriptionAttribute("Order summary should not be used if there is not enough total volume remaining th" +
+            "at has not expired")]
+        public void OrderSummaryShouldNotBeUsedIfThereIsNotEnoughTotalVolumeRemainingThatHasNotExpired()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Order summary should not be used if there is not enough total volume remaining th" +
+                    "at has not expired", null, tagsOfScenario, argumentsOfScenario, featureTags);
+#line 96
+this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            if ((TagHelper.ContainsIgnoreTag(tagsOfScenario) || TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                this.ScenarioStart();
+#line 3
+this.FeatureBackground();
+#line hidden
+                TechTalk.SpecFlow.Table table29 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Item",
+                            "IsBuyOrder",
+                            "Price",
+                            "DurationInDays",
+                            "IssuedOnDateTime",
+                            "MinVolume",
+                            "VolumeRemaining",
+                            "ExpiresOnDateTime"});
+                table29.AddRow(new string[] {
+                            "Veldspar",
+                            "true",
+                            "10.00",
+                            "3",
+                            "2022-04-18T00:00:00",
+                            "1",
+                            "100",
+                            "2022-04-18T00:00:01"});
+#line 97
+    testRunner.Given("order:", ((string)(null)), table29, "Given ");
+#line hidden
+                TechTalk.SpecFlow.Table table30 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Item",
+                            "IsBuyOrder",
+                            "Price",
+                            "DurationInDays",
+                            "IssuedOnDateTime",
+                            "MinVolume",
+                            "VolumeRemaining",
+                            "ExpiresOnDateTime"});
+                table30.AddRow(new string[] {
+                            "Veldspar",
+                            "true",
+                            "11.00",
+                            "3",
+                            "2022-04-18T00:00:00",
+                            "1",
+                            "100",
+                            "2022-04-18T00:00:00"});
+#line 100
+    testRunner.And("order:", ((string)(null)), table30, "And ");
+#line hidden
+#line 103
+    testRunner.When("updating order summary for item \'Veldspar\' and a volume of \'101\' at \'2022-04-18T0" +
+                        "0:00:00\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line hidden
+                TechTalk.SpecFlow.Table table31 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Item",
+                            "Price",
+                            "VolumeRemaining",
+                            "ShouldBeUsedForBuybackCalculations",
+                            "ExpirationDateTime"});
+                table31.AddRow(new string[] {
+                            "Veldspar",
+                            "10.00",
+                            "100",
+                            "false",
+                            "2022-04-18T00:00:01"});
+#line 104
+    testRunner.Then("updated order summary is:", ((string)(null)), table31, "Then ");
+#line hidden
+            }
+            this.ScenarioCleanup();
+        }
+        
+        [NUnit.Framework.TestAttribute()]
+        [NUnit.Framework.DescriptionAttribute("Order summary excludes orders where where min volume is too high")]
+        public void OrderSummaryExcludesOrdersWhereWhereMinVolumeIsTooHigh()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Order summary excludes orders where where min volume is too high", null, tagsOfScenario, argumentsOfScenario, featureTags);
+#line 108
+this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            if ((TagHelper.ContainsIgnoreTag(tagsOfScenario) || TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                this.ScenarioStart();
+#line 3
+this.FeatureBackground();
+#line hidden
+                TechTalk.SpecFlow.Table table32 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Item",
+                            "IsBuyOrder",
+                            "Price",
+                            "DurationInDays",
+                            "IssuedOnDateTime",
+                            "MinVolume",
+                            "VolumeRemaining",
+                            "ExpiresOnDateTime"});
+                table32.AddRow(new string[] {
+                            "Veldspar",
+                            "true",
+                            "10.00",
+                            "3",
+                            "2022-04-18T00:00:00",
+                            "1",
+                            "100",
+                            "2022-04-18T00:00:01"});
+#line 109
+    testRunner.Given("order:", ((string)(null)), table32, "Given ");
+#line hidden
+                TechTalk.SpecFlow.Table table33 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Item",
+                            "IsBuyOrder",
+                            "Price",
+                            "DurationInDays",
+                            "IssuedOnDateTime",
+                            "MinVolume",
+                            "VolumeRemaining",
+                            "ExpiresOnDateTime"});
+                table33.AddRow(new string[] {
+                            "Veldspar",
+                            "true",
+                            "11.00",
+                            "3",
+                            "2022-04-18T00:00:00",
+                            "11",
+                            "100",
+                            "2022-04-18T00:00:01"});
+#line 112
+    testRunner.And("order:", ((string)(null)), table33, "And ");
+#line hidden
+#line 115
+    testRunner.When("updating order summary for item \'Veldspar\' and a volume of \'10\' at \'2022-04-18T00" +
+                        ":00:00\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line hidden
+                TechTalk.SpecFlow.Table table34 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Item",
+                            "Price",
+                            "VolumeRemaining",
+                            "ShouldBeUsedForBuybackCalculations",
+                            "ExpirationDateTime"});
+                table34.AddRow(new string[] {
+                            "Veldspar",
+                            "10.00",
+                            "100",
+                            "true",
+                            "2022-04-18T00:00:01"});
+#line 116
+    testRunner.Then("updated order summary is:", ((string)(null)), table34, "Then ");
+#line hidden
+            }
+            this.ScenarioCleanup();
+        }
+        
+        [NUnit.Framework.TestAttribute()]
+        [NUnit.Framework.DescriptionAttribute("Order summary excludes orders where where min volume is too high after taking bet" +
+            "ter prices into account")]
+        public void OrderSummaryExcludesOrdersWhereWhereMinVolumeIsTooHighAfterTakingBetterPricesIntoAccount()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Order summary excludes orders where where min volume is too high after taking bet" +
+                    "ter prices into account", null, tagsOfScenario, argumentsOfScenario, featureTags);
+#line 120
+this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            if ((TagHelper.ContainsIgnoreTag(tagsOfScenario) || TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                this.ScenarioStart();
+#line 3
+this.FeatureBackground();
+#line hidden
+                TechTalk.SpecFlow.Table table35 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Item",
+                            "IsBuyOrder",
+                            "Price",
+                            "DurationInDays",
+                            "IssuedOnDateTime",
+                            "MinVolume",
+                            "VolumeRemaining",
+                            "ExpiresOnDateTime"});
+                table35.AddRow(new string[] {
+                            "Veldspar",
+                            "true",
+                            "10.00",
+                            "3",
+                            "2022-04-18T00:00:00",
+                            "1",
+                            "100",
+                            "2022-04-18T00:00:01"});
+#line 121
+    testRunner.Given("order:", ((string)(null)), table35, "Given ");
+#line hidden
+                TechTalk.SpecFlow.Table table36 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Item",
+                            "IsBuyOrder",
+                            "Price",
+                            "DurationInDays",
+                            "IssuedOnDateTime",
+                            "MinVolume",
+                            "VolumeRemaining",
+                            "ExpiresOnDateTime"});
+                table36.AddRow(new string[] {
+                            "Veldspar",
+                            "true",
+                            "11.00",
+                            "3",
+                            "2022-04-18T00:00:00",
+                            "11",
+                            "100",
+                            "2022-04-18T00:00:01"});
+#line 124
+    testRunner.And("order:", ((string)(null)), table36, "And ");
+#line hidden
+                TechTalk.SpecFlow.Table table37 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Item",
+                            "IsBuyOrder",
+                            "Price",
+                            "DurationInDays",
+                            "IssuedOnDateTime",
+                            "MinVolume",
+                            "VolumeRemaining",
+                            "ExpiresOnDateTime"});
+                table37.AddRow(new string[] {
+                            "Veldspar",
+                            "true",
+                            "12.00",
+                            "3",
+                            "2022-04-18T00:00:00",
+                            "11",
+                            "13",
+                            "2022-04-18T00:00:01"});
+#line 127
+    testRunner.And("order:", ((string)(null)), table37, "And ");
+#line hidden
+#line 130
+    testRunner.When("updating order summary for item \'Veldspar\' and a volume of \'14\' at \'2022-04-18T00" +
+                        ":00:00\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line hidden
+                TechTalk.SpecFlow.Table table38 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Item",
+                            "Price",
+                            "VolumeRemaining",
+                            "ShouldBeUsedForBuybackCalculations",
+                            "ExpirationDateTime"});
+                table38.AddRow(new string[] {
+                            "Veldspar",
+                            "11.00",
+                            "100",
+                            "true",
+                            "2022-04-18T00:00:01"});
+#line 131
+    testRunner.Then("updated order summary is:", ((string)(null)), table38, "Then ");
 #line hidden
             }
             this.ScenarioCleanup();
