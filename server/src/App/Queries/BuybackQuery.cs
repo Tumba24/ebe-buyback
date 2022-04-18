@@ -1,3 +1,4 @@
+using Evebuyback.Data;
 using EveBuyback.Domain;
 using MediatR;
 
@@ -15,11 +16,11 @@ internal class BuybackQueryHandler : IRequestHandler<BuybackQuery, decimal>
             { "Jita", new Station(10000002, 60003760, "Jita") }
         };
 
-    private readonly IStationOrderSummaryAggregateRepository _repository;
+    private readonly InMemoryStationOrderSummaryAggregateRepository _repository;
 
     public BuybackQueryHandler(IStationOrderSummaryAggregateRepository repository)
     {
-        _repository = repository;
+        _repository = (InMemoryStationOrderSummaryAggregateRepository)repository;
     }
 
     public async Task<decimal> Handle(BuybackQuery query, CancellationToken token)
@@ -46,12 +47,19 @@ internal class BuybackQueryHandler : IRequestHandler<BuybackQuery, decimal>
             aggregate.UpdateOrderSummary(
                 invalidEvent.Item,
                 1000000, 
-                new Order[0], 
+                new Order[0],
                 currentDateTime);
         }
 
         await _repository.Save(aggregate);
 
-        return 2.0m;
+        var buybackAmount = 0.0m;
+        foreach (var item in query.Items)
+        {
+            var orderSummary = await _repository.GetOrderSummary(station, item.ItemTypeName);
+            buybackAmount += (orderSummary.Price * item.Volume);
+        }
+
+        return buybackAmount;
     }
 }

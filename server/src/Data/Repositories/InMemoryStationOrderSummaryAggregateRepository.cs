@@ -10,31 +10,56 @@ public class InMemoryStationOrderSummaryAggregateRepository : IStationOrderSumma
     private static readonly Lazy<IDictionary<string, int>> _itemTypeIdLookup 
         = new Lazy<IDictionary<string, int>>(GetItemTypeIdLookup, true);
 
-    private static readonly ConcurrentDictionary<string, StationOrderSummaryAggregate> _aggregateLookup
-        = new ConcurrentDictionary<string, StationOrderSummaryAggregate>(StringComparer.InvariantCultureIgnoreCase);
+    private static readonly ConcurrentDictionary<string, Dictionary<int, OrderSummary>> _orderSummaryCollectionLookup
+        = new ConcurrentDictionary<string, Dictionary<int, OrderSummary>>(StringComparer.InvariantCultureIgnoreCase);
 
-    public async Task<StationOrderSummaryAggregate> Get(Station station)
+    private static readonly SemaphoreSlim _writeSemaphore = new SemaphoreSlim(1);
+
+    public Task<StationOrderSummaryAggregate> Get(Station station)
     {
-        if (_aggregateLookup.TryGetValue(station.Name, out var aggregate))
-            return new StationOrderSummaryAggregate(aggregate);
+        if (!_orderSummaryCollectionLookup.TryGetValue(station.Name, out var orderSummaryLookup))
+            orderSummaryLookup = new Dictionary<int, OrderSummary>();
 
-        var itemTypeIdLookup = _itemTypeIdLookup.Value;
-
-        aggregate = new StationOrderSummaryAggregate(
-            itemTypeIdLookup: itemTypeIdLookup,
-            orderSummaryLookup: new Dictionary<int, OrderSummary>(),
+        return Task.FromResult(new StationOrderSummaryAggregate(
+            itemTypeIdLookup: _itemTypeIdLookup.Value,
+            orderSummaryLookup: orderSummaryLookup,
             station: station
-        );
-
-        if (_aggregateLookup.TryAdd(station.Name, aggregate))
-            return aggregate;
-
-        return await Get(station);
+        ));
     }
 
-    public Task Save(StationOrderSummaryAggregate aggregate)
+    public Task<OrderSummary> GetOrderSummary(Station station, string itemTypeName)
     {
-        throw new NotImplementedException();
+        if (!_itemTypeIdLookup.Value.TryGetValue(itemTypeName, out var itemTypeId))
+            throw new ArgumentException("Item type name not recognized.");
+
+        if (!_orderSummaryCollectionLookup.TryGetValue(station.Name, out var orderSummaryLookup))
+            throw new ArgumentException("Station not recognized.");
+
+        if (!orderSummaryLookup.TryGetValue(itemTypeId, out var orderSummary))
+            throw new InvalidOperationException("Could not find order summary.");
+
+        return Task.FromResult(orderSummary);
+    }
+
+    public async Task Save(StationOrderSummaryAggregate aggregate)
+    {
+        await _writeSemaphore.WaitAsync();
+
+        try
+        {
+            if (!_orderSummaryCollectionLookup.TryGetValue(aggregate.Station.Name, out var orderSummaryLookup))
+            {
+                orderSummaryLookup = new Dictionary<int, OrderSummary>();
+                _orderSummaryCollectionLookup.TryAdd(aggregate.Station.Name, orderSummaryLookup);
+            }
+
+            foreach (var orderSummary in aggregate.UpdatedOrderSummaries)
+                orderSummaryLookup[orderSummary.Item.Id] = orderSummary;
+        }
+        finally
+        {
+            _writeSemaphore.Release();
+        }
     }
 
     private static IDictionary<string, int> GetItemTypeIdLookup()

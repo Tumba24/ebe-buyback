@@ -5,7 +5,6 @@ public class StationOrderSummaryAggregate
     private readonly IList<object> _domainEvents = new List<object>();
     private readonly IDictionary<int, OrderSummary> _orderSummaryLookup;
     private readonly IDictionary<string, int> _itemTypeIdLookup;
-    private readonly Station _station;
     private readonly IList<OrderSummary> _updatedOrderSummaries = new List<OrderSummary>();
 
     public StationOrderSummaryAggregate(
@@ -15,20 +14,10 @@ public class StationOrderSummaryAggregate
     {
         _itemTypeIdLookup = itemTypeIdLookup ?? throw new ArgumentNullException(nameof(itemTypeIdLookup));
         _orderSummaryLookup = orderSummaryLookup ?? throw new ArgumentNullException(nameof(orderSummaryLookup));
-        _station = station ?? throw new ArgumentNullException(nameof(station));
+        Station = station ?? throw new ArgumentNullException(nameof(station));
     }
 
-    public StationOrderSummaryAggregate(StationOrderSummaryAggregate source)
-    {
-        if (source is null) throw new ArgumentNullException(nameof(source));
- 
-        _itemTypeIdLookup = source._itemTypeIdLookup;
-        _orderSummaryLookup = source._orderSummaryLookup.ToDictionary(
-            kvp => kvp.Key,
-            kvp => kvp.Value
-        );
-        _station = source._station;
-    }
+    public Station Station { get; }
 
     public IEnumerable<object> DomainEvents => _domainEvents.ToArray();
     public IEnumerable<OrderSummary> UpdatedOrderSummaries => _updatedOrderSummaries.ToArray();
@@ -58,7 +47,7 @@ public class StationOrderSummaryAggregate
     {
         orders = orders?
             .Where(o => 
-                o.LocationId == _station.LocationId &&
+                o.LocationId == Station.LocationId &&
                 o.IsBuyOrder == true &&
                 o.IssuedOnDateTime.AddDays(o.Duration) >= currentDateTime.AddDays(1) &&
                 o.MinVolume < volume &&
@@ -78,7 +67,6 @@ public class StationOrderSummaryAggregate
             loopCount++;
         }
     }
-
     private int UpdateOrderSummary(ItemType item, int volume, IEnumerable<Order> orders, DateTime currentDateTime, int ordersToSkip)
     {
         var ordersToConsider = orders.Skip(ordersToSkip);
