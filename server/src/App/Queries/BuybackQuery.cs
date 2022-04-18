@@ -7,7 +7,7 @@ using MediatR;
 
 namespace EveBuyback.App;
 
-public record BuybackQuery(string stationName, IEnumerable<BuybackItem> Items) : IRequest<decimal>;
+public record BuybackQuery(string stationName, IEnumerable<BuybackItem> Items, decimal BuybackTaxPercentage) : IRequest<decimal>;
 
 public record BuybackItem(string ItemTypeName, int Volume);
 
@@ -67,7 +67,9 @@ internal class BuybackQueryHandler : IRequestHandler<BuybackQuery, decimal>
             buybackAmount += (orderSummary.Price * item.Volume);
         }
 
-        return buybackAmount;
+        var tax = buybackAmount * (query.BuybackTaxPercentage / 100);
+
+        return buybackAmount - tax;
     }
 
     private static HttpClient CreateClient()
