@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ master ]
 
+env:
+  DOTNET_VERSION: '6.0.202'
+
 jobs:
 
   build:
@@ -13,9 +16,24 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./server/src
+        working-directory: ./
 
     steps:
     - uses: actions/checkout@v3
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Install dependencies
+      run: dotnet restore ./tests/domain
+      
+    - name: Build
+      run: dotnet build ./tests/domain --configuration Release --no-restore
+    
+    - name: Test
+      run: dotnet test ./tests/domain --no-restore --verbosity normal
+
     - name: Build the Docker image
+      working-directory: ./server/src
       run: docker build . --file Dockerfile --tag eve-buyback:$(date +%s)
