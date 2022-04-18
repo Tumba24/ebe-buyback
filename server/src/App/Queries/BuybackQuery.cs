@@ -9,15 +9,25 @@ public record BuybackItem(string ItemTypeName, int Volume);
 
 internal class BuybackQueryHandler : IRequestHandler<BuybackQuery, decimal>
 {
+    private static readonly IDictionary<string, Station> _stationLookup = 
+        new Dictionary<string, Station>(StringComparer.InvariantCultureIgnoreCase)
+        {
+            { "Jita", new Station(10000002, 60003760, "Jita") }
+        };
+
+    private readonly IStationOrderSummaryAggregateRepository _repository;
+
+    public BuybackQueryHandler(IStationOrderSummaryAggregateRepository repository)
+    {
+        _repository = repository;
+    }
+
     public async Task<decimal> Handle(BuybackQuery query, CancellationToken token)
     {
-        await Task.CompletedTask;
+        if (!_stationLookup.TryGetValue(query.stationName, out var station))
+            throw new ArgumentException("Invalid station. Sttion not recognized.");
 
-        var aggregate = new StationOrderSummaryAggregate(
-            itemTypeIdLookup: new Dictionary<string, int>(),
-            orderSummaryLookup: new Dictionary<int, OrderSummary>(),
-            station: new Station(10000002, 60003760, "Jita")
-        );
+        var aggregate = await _repository.Get(station);
 
         var currentDateTime = DateTime.UtcNow;
 
@@ -39,6 +49,8 @@ internal class BuybackQueryHandler : IRequestHandler<BuybackQuery, decimal>
                 new Order[0], 
                 currentDateTime);
         }
+
+        await _repository.Save(aggregate);
 
         return 2.0m;
     }

@@ -18,6 +18,18 @@ public class StationOrderSummaryAggregate
         _station = station ?? throw new ArgumentNullException(nameof(station));
     }
 
+    public StationOrderSummaryAggregate(StationOrderSummaryAggregate source)
+    {
+        if (source is null) throw new ArgumentNullException(nameof(source));
+ 
+        _itemTypeIdLookup = source._itemTypeIdLookup;
+        _orderSummaryLookup = source._orderSummaryLookup.ToDictionary(
+            kvp => kvp.Key,
+            kvp => kvp.Value
+        );
+        _station = source._station;
+    }
+
     public IEnumerable<object> DomainEvents => _domainEvents.ToArray();
     public IEnumerable<OrderSummary> UpdatedOrderSummaries => _updatedOrderSummaries.ToArray();
 

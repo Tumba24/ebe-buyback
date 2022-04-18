@@ -1,5 +1,7 @@
 using System.Reflection;
+using Evebuyback.Data;
 using EveBuyback.App;
+using EveBuyback.Domain;
 using MediatR;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddControllers(o => o.InputFormatters.Insert(o.InputFormatters.Count, new PlainTextInputFormatter()));
 builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
+builder.Services.AddScoped<IStationOrderSummaryAggregateRepository, InMemoryStationOrderSummaryAggregateRepository>();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
