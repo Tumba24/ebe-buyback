@@ -26,13 +26,13 @@ jobs:
         dotnet-version: ${{ env.DOTNET_VERSION }}
 
     - name: Install dependencies
-      run: dotnet restore ./tests/domain
+      run: dotnet restore ./server/tests/domain
       
     - name: Build
-      run: dotnet build ./tests/domain --configuration Release --no-restore
+      run: dotnet build ./server/tests/domain --configuration Release --no-restore
     
     - name: Test
-      run: dotnet test ./tests/domain --no-restore --verbosity normal
+      run: dotnet test ./server/tests/domain --no-restore --verbosity normal
 
     - name: Build the Docker image
       working-directory: ./server/src
