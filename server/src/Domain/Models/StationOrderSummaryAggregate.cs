@@ -80,7 +80,7 @@ public class StationOrderSummaryAggregate
         decimal maxPrice = 0;
         var volumeToFill = volume;
         int totalOrderVolumeRemaining = 0;
-        DateTime firstOrderExpirationDateTime = currentDateTime.AddSeconds(2);
+        DateTime firstOrderExpirationDateTime = currentDateTime.AddMinutes(5);
         var orderIndex = 0;
 
         foreach (var order in ordersToConsider)
