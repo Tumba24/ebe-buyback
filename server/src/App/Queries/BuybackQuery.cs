@@ -1,40 +1,66 @@
-using System.Net.Http.Headers;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using Evebuyback.Data;
 using EveBuyback.Domain;
 using MediatR;
 
 namespace EveBuyback.App;
 
-public record BuybackQuery(string stationName, IEnumerable<BuybackItem> Items, decimal BuybackTaxPercentage) : IRequest<decimal>;
+public record BuybackQuery(string stationName, IEnumerable<BuybackItem> Items, decimal BuybackTaxPercentage) : IRequest<BackendQueryResult>;
 
 public record BuybackItem(string ItemTypeName, int Volume);
 
-internal class BuybackQueryHandler : IRequestHandler<BuybackQuery, decimal>
-{
-    private static readonly HttpClient _httpClient = CreateClient();
+public record BackendQueryResult(decimal BuybackAmount, bool OK, string errorMessage);
 
+internal class BuybackQueryHandler : IRequestHandler<BuybackQuery, BackendQueryResult>
+{
     private static readonly IDictionary<string, Station> _stationLookup = 
         new Dictionary<string, Station>(StringComparer.InvariantCultureIgnoreCase)
         {
             { "Jita", new Station(10000002, 60003760, "Jita") }
         };
 
-    private readonly InMemoryStationOrderSummaryAggregateRepository _repository;
+    private readonly IOrderRepository _orderRepository;
+    private readonly InMemoryStationOrderSummaryAggregateRepository _stationOrderSummaryRepository;
 
-    public BuybackQueryHandler(IStationOrderSummaryAggregateRepository repository)
+    public BuybackQueryHandler(
+        IOrderRepository orderRepository,
+        IStationOrderSummaryAggregateRepository stationOrderSummaryRepository)
     {
-        _repository = (InMemoryStationOrderSummaryAggregateRepository)repository;
+        _orderRepository = orderRepository;
+        _stationOrderSummaryRepository = (InMemoryStationOrderSummaryAggregateRepository)stationOrderSummaryRepository;
     }
 
-    public async Task<decimal> Handle(BuybackQuery query, CancellationToken token)
+    public async Task<BackendQueryResult> Handle(BuybackQuery query, CancellationToken token)
     {
         if (!_stationLookup.TryGetValue(query.stationName, out var station))
-            throw new ArgumentException("Invalid station. Sttion not recognized.");
+            return new BackendQueryResult(0, false, "Invalid station. Station not recognized.");
 
-        var aggregate = await _repository.Get(station);
+        var aggregate = await _stationOrderSummaryRepository.Get(station);
 
+        await RefreshOrderSummaries(query, token, station, aggregate);
+        
+        token.ThrowIfCancellationRequested();
+
+        await _stationOrderSummaryRepository.Save(aggregate);
+
+        var buybackAmount = 0.0m;
+        foreach (var item in query.Items)
+        {
+            var orderSummary = await _stationOrderSummaryRepository.GetOrderSummary(station, item.ItemTypeName);
+            buybackAmount += (orderSummary.Price * item.Volume);
+        }
+
+        var tax = buybackAmount * (query.BuybackTaxPercentage / 100);
+
+
+        return new BackendQueryResult(buybackAmount - tax, false, string.Empty); 
+    }
+
+    private async Task RefreshOrderSummaries(
+        BuybackQuery query, 
+        CancellationToken token,
+        Station station,
+        StationOrderSummaryAggregate aggregate)
+    {
         var currentDateTime = DateTime.UtcNow;
 
         foreach (var item in query.Items)
@@ -49,7 +75,9 @@ internal class BuybackQueryHandler : IRequestHandler<BuybackQuery, decimal>
             if (invalidEvent == null)
                 throw new InvalidOperationException();
 
-            var orders = await GetOrders(station, invalidEvent.Item.Id, currentDateTime);
+            var orders = await _orderRepository.GetOrders(station, invalidEvent.Item.Id, currentDateTime, token);
+
+            token.ThrowIfCancellationRequested();
             
             aggregate.UpdateOrderSummary(
                 invalidEvent.Item,
@@ -57,120 +85,5 @@ internal class BuybackQueryHandler : IRequestHandler<BuybackQuery, decimal>
                 orders,
                 currentDateTime);
         }
-
-        await _repository.Save(aggregate);
-
-        var buybackAmount = 0.0m;
-        foreach (var item in query.Items)
-        {
-            var orderSummary = await _repository.GetOrderSummary(station, item.ItemTypeName);
-            buybackAmount += (orderSummary.Price * item.Volume);
-        }
-
-        var tax = buybackAmount * (query.BuybackTaxPercentage / 100);
-
-        return buybackAmount - tax;
-    }
-
-    private static HttpClient CreateClient()
-    {
-        HttpClient client = new HttpClient()
-        {
-            BaseAddress = new Uri("https://esi.evetech.net/")
-        };
-
-        client.DefaultRequestHeaders.Accept
-            .Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-        return client;
-    }
-
-    private async Task<IEnumerable<Order>> GetOrders(Station station, int itemTypeId, DateTime currentDateTime)
-    {
-        var orders = new List<Order>();
-        
-        int page = 1;
-        IEnumerable<Order>? pageOrders;
-        while ((pageOrders = await GetNextPage()) != null)
-        {
-            page++;
-            orders.AddRange(pageOrders);
-        }
-
-        return orders;
-
-        async Task<IEnumerable<Order>?> GetNextPage()
-        {
-            var pageOrders = new List<Order>();
-            var relativeAddress = $"latest/markets/{station.RegionId}/orders/?datasource=tranquility&order_type=buy&page={page}&type_id={itemTypeId}";
-
-            using (var response = await _httpClient.GetAsync(relativeAddress))
-            {
-                if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
-                    return null;
-                
-                response.EnsureSuccessStatusCode();
-
-                var contentStream = await response.Content.ReadAsStreamAsync();
-                if (contentStream is null)
-                    return null;
-
-                var expiresOnDateTime = currentDateTime.AddMinutes(5);
-                if (response.Headers.TryGetValues("expires", out var expiresOnStr))
-                    expiresOnDateTime = Convert.ToDateTime(expiresOnStr);
-
-                var result = JsonSerializer.Deserialize<List<EveOrderData>>(contentStream);
-                if (result is null)
-                    return null;
-
-                foreach (var item in result)
-                {
-                    pageOrders.Add(
-                        new Order(
-                            Duration: item.Duration,
-                            IsBuyOrder: item.IsBuyOrder,
-                            IssuedOnDateTime: item.Issued,
-                            LocationId: item.LocationId,
-                            MinVolume: item.MinVolume,
-                            OrderId: item.OrderId,
-                            Price: item.Price,
-                            SystemId: item.SystemId,
-                            ItemTypeId: item.ItemTypeId,
-                            VolumeRemaining: item.VolumeRemaining,
-                            VolumeTotal: item.VolumeTotal,
-                            ExpiresOnDateTime: expiresOnDateTime
-                        )
-                    );
-                }
-
-                return pageOrders.Any() ? pageOrders : null;
-            }
-        }
-    }
-
-    internal class EveOrderData
-    {
-        [JsonPropertyName("duration")]
-        public int Duration { get; set; }
-        [JsonPropertyName("is_buy_order")]
-        public bool IsBuyOrder { get; set; }
-        [JsonPropertyName("issued")]
-        public DateTime Issued { get; set; }
-        [JsonPropertyName("location_id")]
-        public long LocationId { get; set; }
-        [JsonPropertyName("min_volume")]
-        public int MinVolume { get; set; }
-        [JsonPropertyName("order_id")]
-        public long OrderId { get; set; }
-        [JsonPropertyName("price")]
-        public decimal Price { get; set; }
-        [JsonPropertyName("system_id")]
-        public int SystemId { get; set; }
-        [JsonPropertyName("type_id")]
-        public int ItemTypeId { get; set; }
-        [JsonPropertyName("volume_remain")]
-        public int VolumeRemaining { get; set; }
-        [JsonPropertyName("volume_total")]
-        public int VolumeTotal { get; set; }
     }
 }
