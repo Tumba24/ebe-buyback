@@ -52,7 +52,7 @@ internal class BuybackQueryHandler : IRequestHandler<BuybackQuery, BackendQueryR
         var tax = buybackAmount * (query.BuybackTaxPercentage / 100);
 
 
-        return new BackendQueryResult(buybackAmount - tax, false, string.Empty); 
+        return new BackendQueryResult(buybackAmount - tax, true, string.Empty); 
     }
 
     private async Task RefreshOrderSummaries(
