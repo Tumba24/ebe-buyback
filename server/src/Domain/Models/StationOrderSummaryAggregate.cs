@@ -40,7 +40,7 @@ public class StationOrderSummaryAggregate
             return;
         }
 
-        _domainEvents.Add(new InvalidOrderSummaryNoticedEvent(new ItemType(itemTypeId, itemTypeName)));
+        _domainEvents.Add(new InvalidOrderSummaryNoticedEvent(new ItemType(itemTypeId, itemTypeName), volume));
     }
 
     public void UpdateOrderSummary(ItemType item, int volume, IEnumerable<Order> orders, DateTime currentDateTime)

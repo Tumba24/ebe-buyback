@@ -81,7 +81,7 @@ internal class BuybackQueryHandler : IRequestHandler<BuybackQuery, BackendQueryR
             
             aggregate.UpdateOrderSummary(
                 invalidEvent.Item,
-                1000000,
+                invalidEvent.Volume,
                 orders,
                 currentDateTime);
         }
