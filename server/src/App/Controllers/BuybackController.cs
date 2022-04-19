@@ -19,7 +19,7 @@ public class BuybackController : ControllerBase
     public async Task<ActionResult<decimal>> CalculateBuybackAmount(
         [FromBody] string rawInput,
         string station = "Jita",
-        bool calculateBuybackAfterRefinement = true,
+        bool shouldCalculateBuybackAfterRefinement = true,
         decimal buybackTaxPercentage = 10)
     {
         List<BuybackItem> items = new List<BuybackItem>();
@@ -45,7 +45,12 @@ public class BuybackController : ControllerBase
             }
         }
 
-        var result = await _mediator.Send(new BuybackQuery(station, items, buybackTaxPercentage));
+        var result = await _mediator.Send(
+            new BuybackQuery(
+                station, 
+                items, 
+                shouldCalculateBuybackAfterRefinement, 
+                buybackTaxPercentage));
 
         if (result.OK)
             return result.BuybackAmount;

@@ -22,9 +22,9 @@ public class StationOrderSummaryStepDefinitions
                 throw new InvalidOperationException("Station is required");
 
             return new StationOrderSummaryAggregate(
-                itemTypeIdLookup: _itemTypes.ToDictionary(
+                itemTypeLookup: _itemTypes.ToDictionary(
                     i => i.Name,
-                    i => i.Id
+                    i => i
                 ),
                 orderSummaryLookup: _orderSummaries.ToDictionary(
                     s => s.Item.Id,
@@ -37,7 +37,7 @@ public class StationOrderSummaryStepDefinitions
 
     [Given("item type '(.*)' - '(.*)'")]
     public void GivenItemType(int itemTypeId, string itemTypeName) => _itemTypes
-        .Add(new ItemType(itemTypeId, itemTypeName));
+        .Add(new ItemType(itemTypeId, itemTypeName, 100));
 
     [Given("order:")]
     public void GivenOrder(Table table)

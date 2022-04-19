@@ -9,7 +9,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddControllers(o => o.InputFormatters.Insert(o.InputFormatters.Count, new PlainTextInputFormatter()));
 builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
+builder.Services.AddScoped<IItemTypeRepository, InMemoryItemTypeRepository>();
 builder.Services.AddScoped<IOrderRepository, EsiOrderRepository>();
+builder.Services.AddScoped<IRefinementRepository, InMemoryRefinementRepository>();
 builder.Services.AddScoped<IStationOrderSummaryAggregateRepository, InMemoryStationOrderSummaryAggregateRepository>();
 builder.Services.AddSwaggerGen();
 

@@ -2,5 +2,6 @@ namespace EveBuyback.Domain;
 
 public record ItemType(
     int Id,
-    string Name
+    string Name,
+    int PortionSize
 );

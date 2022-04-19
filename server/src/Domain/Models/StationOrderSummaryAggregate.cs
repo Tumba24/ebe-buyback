@@ -4,15 +4,15 @@ public class StationOrderSummaryAggregate
 {
     private readonly IList<object> _domainEvents = new List<object>();
     private readonly IDictionary<int, OrderSummary> _orderSummaryLookup;
-    private readonly IDictionary<string, int> _itemTypeIdLookup;
+    private readonly IDictionary<string, ItemType> _itemTypeLookup;
     private readonly IList<OrderSummary> _updatedOrderSummaries = new List<OrderSummary>();
 
     public StationOrderSummaryAggregate(
-        IDictionary<string, int> itemTypeIdLookup,
+        IDictionary<string, ItemType> itemTypeLookup,
         IDictionary<int, OrderSummary> orderSummaryLookup,
         Station station)
     {
-        _itemTypeIdLookup = itemTypeIdLookup ?? throw new ArgumentNullException(nameof(itemTypeIdLookup));
+        _itemTypeLookup = itemTypeLookup ?? throw new ArgumentNullException(nameof(itemTypeLookup));
         _orderSummaryLookup = orderSummaryLookup ?? throw new ArgumentNullException(nameof(orderSummaryLookup));
         Station = station ?? throw new ArgumentNullException(nameof(station));
     }
@@ -26,13 +26,13 @@ public class StationOrderSummaryAggregate
     {
         if (itemTypeName is null) throw new ArgumentNullException(itemTypeName);
 
-        if (!_itemTypeIdLookup.TryGetValue(itemTypeName, out var itemTypeId))
+        if (!_itemTypeLookup.TryGetValue(itemTypeName, out var itemType))
         {
             _domainEvents.Add(new OrderSummaryRefreshAbortedEvent.InvalidItemTypeName(itemTypeName));
             return;
         }
 
-        if (_orderSummaryLookup.TryGetValue(itemTypeId, out var summary) &&
+        if (_orderSummaryLookup.TryGetValue(itemType.Id, out var summary) &&
             summary.ExpirationDateTime > currentDateTime && 
             summary.VolumeRemaining >= volume)
         {
@@ -40,7 +40,7 @@ public class StationOrderSummaryAggregate
             return;
         }
 
-        _domainEvents.Add(new InvalidOrderSummaryNoticedEvent(new ItemType(itemTypeId, itemTypeName), volume));
+        _domainEvents.Add(new InvalidOrderSummaryNoticedEvent(itemType, volume));
     }
 
     public void UpdateOrderSummary(ItemType item, int volume, IEnumerable<Order> orders, DateTime currentDateTime)
