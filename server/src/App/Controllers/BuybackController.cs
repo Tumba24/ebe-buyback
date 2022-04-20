@@ -47,7 +47,6 @@ public class BuybackController : ControllerBase
 
         if (shouldCalculateBuybackAfterRefinement)
         {
-
             var refinementResult = await _mediator.Send(new RefinedQuery(items));
             if (!refinementResult.OK)
                 return BadRequest(refinementResult.errorMessage);
