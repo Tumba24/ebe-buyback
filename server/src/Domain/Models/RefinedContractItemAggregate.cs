@@ -26,8 +26,8 @@ public class RefinedContractItemAggregate
                 continue;
             }
 
-            var volume = contractItem.Volume * (materialItem.Quantity / contractItem.Item.PortionSize);
-            _domainEvents.Add(new MaterialRefinedEvent(itemType, volume));
+            var volume = contractItem.Volume * ((decimal)materialItem.Quantity / contractItem.Item.PortionSize);
+            _domainEvents.Add(new MaterialRefinedEvent(itemType, (int)Math.Floor(volume)));
         }
     }
 }
