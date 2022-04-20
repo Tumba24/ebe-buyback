@@ -61,26 +61,17 @@ public class InMemoryRefinementRepository : IRefinementRepository
                 .WithNamingConvention(CamelCaseNamingConvention.Instance)
                 .Build();
 
-            IDictionary<string, object> typeIds = deserializer.Deserialize<ExpandoObject>(reader) as IDictionary<string, object>;
+            var materials = deserializer.Deserialize<Dictionary<string, ItemTypeMaterialData>>(reader);
 
-            if (typeIds is null) throw new InvalidOperationException("Failed to deserialize type materials.");
+            if (materials is null) throw new InvalidOperationException("Failed to deserialize type materials.");
 
-            foreach (var kvp in typeIds)
+            foreach ((string itemTypeIdStr, ItemTypeMaterialData materialData) in materials)
             {
-                int itemTypeId = Int32.Parse(kvp.Key);
-                
-                var itemProps = (IDictionary<object, object>)kvp.Value;
-                var materials = (IEnumerable<object>)itemProps["materials"];
-
+                int itemTypeId = Int32.Parse(itemTypeIdStr);
                 var refinedItems = new List<BuybackItem>();
 
-                foreach (IDictionary<object, object> material in materials)
-                {
-                    var materialTypeId = Convert.ToInt32(material["materialTypeID"]);
-                    var quantity = Convert.ToInt32(material["quantity"]);
-
-                    refinedItems.Add(new BuybackItem(materialTypeId, quantity));
-                }
+                foreach (var material in materialData?.Materials ?? Enumerable.Empty<ItemTypeMaterialItemData>())
+                    refinedItems.Add(new BuybackItem(material.MaterialTypeID, material.Quantity));
 
                 refinementLookup.Add(itemTypeId, refinedItems);
             }
