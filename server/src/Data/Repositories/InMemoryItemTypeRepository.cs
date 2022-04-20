@@ -29,28 +29,21 @@ public class InMemoryItemTypeRepository : IItemTypeRepository
             if (stream is null) throw new InvalidOperationException("Failed to get type id resource stream.");
 
             var deserializer = new YamlDotNet.Serialization.DeserializerBuilder()
+                .IgnoreUnmatchedProperties()
                 .WithNamingConvention(CamelCaseNamingConvention.Instance)
                 .Build();
 
-            IDictionary<string, object> typeIds = deserializer.Deserialize<ExpandoObject>(reader) as IDictionary<string, object>;
+            var itemTypes = deserializer.Deserialize<Dictionary<string, ItemTypeData>>(reader);
 
-            if (typeIds is null) throw new InvalidOperationException("Failed to deserialize type ids.");
+            if (itemTypes is null) throw new InvalidOperationException("Failed to deserialize type ids.");
 
-            foreach (var kvp in typeIds)
+            foreach ((string itemTypeIdStr, ItemTypeData itemType) in itemTypes)
             {
-                int itemTypeId = Int32.Parse(kvp.Key);
-                
-                var itemProps = (IDictionary<object, object>)kvp.Value;
-                var nameProps = (IDictionary<object, object>)itemProps["name"];
-                var enName = nameProps["en"] as string;
-
-                if (enName is null) throw new InvalidOperationException("Failed to find en name.");
-
+                int itemTypeId = Int32.Parse(itemTypeIdStr);
+                var enName = itemType?.Name?.En ?? throw new InvalidOperationException("Invalid type id has no name.");
                 enName = enName.Trim();
 
-                var portionSize = Convert.ToInt32(itemProps["portionSize"]);
-
-                itemTypeLookup.TryAdd(itemTypeId, new ItemType(itemTypeId, enName, portionSize));
+                itemTypeLookup.TryAdd(itemTypeId, new ItemType(itemTypeId, enName, itemType.PortionSize));
             }
         }
 
