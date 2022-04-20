@@ -49,7 +49,7 @@ public class StationOrderSummaryAggregate
                 o.LocationId == Station.LocationId &&
                 o.IsBuyOrder == true &&
                 o.IssuedOnDateTime.AddDays(o.Duration) >= currentDateTime.AddDays(1) &&
-                o.MinVolume < volume &&
+                o.MinVolume <= volume &&
                 o.ExpiresOnDateTime > currentDateTime)?
             .OrderByDescending(o => o.Price)
             .OrderByDescending(o => o.ExpiresOnDateTime) ?? Enumerable.Empty<Order>();
