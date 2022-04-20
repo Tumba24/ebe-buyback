@@ -20,7 +20,8 @@ public class BuybackController : ControllerBase
         [FromBody] string rawInput,
         string station = "Jita",
         bool shouldCalculateBuybackAfterRefinement = true,
-        decimal buybackTaxPercentage = 10)
+        decimal buybackTaxPercentage = 10,
+        decimal buybackEfficiencyPercentage = 75)
     {
         List<BuybackItem> items = new List<BuybackItem>();
 
@@ -47,7 +48,7 @@ public class BuybackController : ControllerBase
 
         if (shouldCalculateBuybackAfterRefinement)
         {
-            var refinementResult = await _mediator.Send(new RefinedQuery(items));
+            var refinementResult = await _mediator.Send(new RefinedQuery(items, buybackEfficiencyPercentage));
             if (!refinementResult.OK)
                 return BadRequest(refinementResult.errorMessage);
 

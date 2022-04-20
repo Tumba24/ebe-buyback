@@ -16,7 +16,7 @@ public class RefinedContractItemAggregate
 
     public IEnumerable<object> DomainEvents => _domainEvents.ToArray();
 
-    public void Refine(ContractItem contractItem)
+    public void Refine(ContractItem contractItem, decimal buybackEfficiencyPercentage)
     {
         foreach (var materialItem in _materialItems)
         {
@@ -27,6 +27,8 @@ public class RefinedContractItemAggregate
             }
 
             var volume = contractItem.Volume * ((decimal)materialItem.Quantity / contractItem.Item.PortionSize);
+            volume = volume * (buybackEfficiencyPercentage / 100);
+
             _domainEvents.Add(new MaterialRefinedEvent(itemType, (int)Math.Floor(volume)));
         }
     }

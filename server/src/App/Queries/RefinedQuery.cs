@@ -3,7 +3,7 @@ using MediatR;
 
 namespace EveBuyback.App;
 
-public record RefinedQuery(IEnumerable<BuybackItem> Items) : IRequest<RefinedQueryResult>;
+public record RefinedQuery(IEnumerable<BuybackItem> Items, decimal BuybackEfficiencyPercentage) : IRequest<RefinedQueryResult>;
 
 public record UnrefinedItem(string ItemTypeName, int Volume);
 
@@ -42,7 +42,7 @@ internal class RefinedQueryHandler : IRequestHandler<RefinedQuery, RefinedQueryR
             var aggregate = await _refinementRepository.Get(itemType.Id);
             token.ThrowIfCancellationRequested();
 
-            aggregate.Refine(new ContractItem(itemType, item.Volume));
+            aggregate.Refine(new ContractItem(itemType, item.Volume), query.BuybackEfficiencyPercentage);
 
             var errorEvents = aggregate.DomainEvents
                 .Select(e => e as IErrorEvent)
