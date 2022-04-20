@@ -36,10 +36,10 @@ public class BuybackController : ControllerBase
                 
                 var parts = line.Split(new string[] { "\t", "  " }, StringSplitOptions.RemoveEmptyEntries);
                 if (parts.Length < 2)
-                    return new StatusCodeResult(StatusCodes.Status400BadRequest);
+                    return BadRequest("Each line should split into two parts. Parts should be split by a tab or two sapces.");
 
                 if (!Int32.TryParse(parts[1], out var volume))
-                    return new StatusCodeResult(StatusCodes.Status400BadRequest);
+                    return BadRequest("The second part of each line must be a valid 32bit integer that indicates volume.");
 
                 items.Add(new BuybackItem(parts[0], volume));
             }
