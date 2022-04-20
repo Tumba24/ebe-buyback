@@ -7,16 +7,16 @@ namespace Evebuyback.Data;
 public class InMemoryItemTypeRepository : IItemTypeRepository
 {
     private static readonly Lazy<IDictionary<string, ItemType>> _lookupByName 
-        = new Lazy<IDictionary<string, ItemType>>(GetItemTypeLookupByName, true);
+        = new Lazy<IDictionary<string, ItemType>>(GetInvertedLookup, true);
 
     private static readonly Lazy<IDictionary<int, ItemType>> _lookupById 
-        = new Lazy<IDictionary<int, ItemType>>(GetItemTypeLookupById, true);
+        = new Lazy<IDictionary<int, ItemType>>(GetLookup, true);
 
-    public Task<IDictionary<string, ItemType>> GetLookupByName() => Task.FromResult(_lookupByName.Value);
+    public Task<IDictionary<string, ItemType>> GetLookupByItemTypeName() => Task.FromResult(_lookupByName.Value);
 
-    public Task<IDictionary<int, ItemType>> GetLookupById() => Task.FromResult(_lookupById.Value);
+    public Task<IDictionary<int, ItemType>> GetLookupByItemTypeId() => Task.FromResult(_lookupById.Value);
 
-    private static IDictionary<int, ItemType> GetItemTypeLookupById()
+    private static IDictionary<int, ItemType> GetLookup()
     {
         IDictionary<int, ItemType> itemTypeLookup 
             = new Dictionary<int, ItemType>();
@@ -50,7 +50,7 @@ public class InMemoryItemTypeRepository : IItemTypeRepository
         return itemTypeLookup;
     }
 
-    private static IDictionary<string, ItemType> GetItemTypeLookupByName()
+    private static IDictionary<string, ItemType> GetInvertedLookup()
     {
         var lookupByName = new Dictionary<string, ItemType>(StringComparer.InvariantCultureIgnoreCase);
 

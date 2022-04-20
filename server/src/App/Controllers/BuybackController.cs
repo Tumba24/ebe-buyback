@@ -45,16 +45,26 @@ public class BuybackController : ControllerBase
             }
         }
 
-        var result = await _mediator.Send(
+        if (shouldCalculateBuybackAfterRefinement)
+        {
+
+            var refinementResult = await _mediator.Send(new RefinedQuery(items));
+            if (!refinementResult.OK)
+                return BadRequest(refinementResult.errorMessage);
+
+            items.Clear();
+            items.AddRange(refinementResult.Items);
+        }
+
+        var buybackResult = await _mediator.Send(
             new BuybackQuery(
                 station, 
-                items, 
-                shouldCalculateBuybackAfterRefinement, 
+                items,
                 buybackTaxPercentage));
 
-        if (result.OK)
-            return result.BuybackAmount;
+        if (buybackResult.OK)
+            return buybackResult.BuybackAmount;
 
-        return BadRequest(result.errorMessage);
+        return BadRequest(buybackResult.errorMessage);
     }
 }

@@ -11,7 +11,7 @@ builder.Services.AddControllers(o => o.InputFormatters.Insert(o.InputFormatters.
 builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
 builder.Services.AddScoped<IItemTypeRepository, InMemoryItemTypeRepository>();
 builder.Services.AddScoped<IOrderRepository, EsiOrderRepository>();
-builder.Services.AddScoped<IRefinementRepository, InMemoryRefinementRepository>();
+builder.Services.AddScoped<IRefinedContractItemAggregateRepository, InMemoryRefinedContractItemAggregateRepository>();
 builder.Services.AddScoped<IStationOrderSummaryAggregateRepository, InMemoryStationOrderSummaryAggregateRepository>();
 builder.Services.AddSwaggerGen();
 

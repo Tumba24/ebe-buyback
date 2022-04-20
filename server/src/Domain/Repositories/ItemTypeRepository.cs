@@ -2,6 +2,6 @@ namespace EveBuyback.Domain;
 
 public interface IItemTypeRepository
 {
-    Task<IDictionary<int, ItemType>> GetLookupById();
-    Task<IDictionary<string, ItemType>> GetLookupByName();
+    Task<IDictionary<int, ItemType>> GetLookupByItemTypeId();
+    Task<IDictionary<string, ItemType>> GetLookupByItemTypeName();
 }

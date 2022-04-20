@@ -18,7 +18,6 @@ public class StationOrderSummaryAggregate
     }
 
     public Station Station { get; }
-
     public IEnumerable<object> DomainEvents => _domainEvents.ToArray();
     public IEnumerable<OrderSummary> UpdatedOrderSummaries => _updatedOrderSummaries.ToArray();
 

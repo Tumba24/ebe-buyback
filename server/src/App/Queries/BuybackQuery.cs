@@ -6,8 +6,7 @@ namespace EveBuyback.App;
 
 public record BuybackQuery(
     string StationName, 
-    IEnumerable<BuybackItem> Items, 
-    bool ShouldCalculateBuybackAfterRefinement, 
+    IEnumerable<BuybackItem> Items,
     decimal BuybackTaxPercentage) : IRequest<BackendQueryResult>;
 
 public record BuybackItem(string ItemTypeName, int Volume);
@@ -24,18 +23,15 @@ internal class BuybackQueryHandler : IRequestHandler<BuybackQuery, BackendQueryR
 
     private readonly IItemTypeRepository _itemTypeRepository;
     private readonly IOrderRepository _orderRepository;
-    private readonly IRefinementRepository _refinementRepository;
     private readonly InMemoryStationOrderSummaryAggregateRepository _stationOrderSummaryRepository;
 
     public BuybackQueryHandler(
         IItemTypeRepository itemTypeRepository,
         IOrderRepository orderRepository,
-        IRefinementRepository refinementRepository,
         IStationOrderSummaryAggregateRepository stationOrderSummaryRepository)
     {
         _itemTypeRepository = itemTypeRepository;
         _orderRepository = orderRepository;
-        _refinementRepository = refinementRepository;
         _stationOrderSummaryRepository = (InMemoryStationOrderSummaryAggregateRepository)stationOrderSummaryRepository;
     }
 
@@ -44,29 +40,31 @@ internal class BuybackQueryHandler : IRequestHandler<BuybackQuery, BackendQueryR
         if (!_stationLookup.TryGetValue(query.StationName, out var station))
             return new BackendQueryResult(0, false, "Invalid station. Station not recognized.");
 
-        var buybackItems = await GetBuybackItems(query);
+        var contractItems = await GetContractItems(query);
         token.ThrowIfCancellationRequested();
 
-        var aggregate = await _stationOrderSummaryRepository.Get(station);
+        var orderSummaryAggregate = await _stationOrderSummaryRepository.Get(station);
         token.ThrowIfCancellationRequested();
 
-        await RefreshOrderSummaries(station, buybackItems, aggregate, token);
+        var domainEvents = await RefreshOrderSummaries(station, contractItems, orderSummaryAggregate, token);
         token.ThrowIfCancellationRequested();
 
-        await _stationOrderSummaryRepository.Save(aggregate);
+        var errorEvents = domainEvents
+            .Select(e => e as IErrorEvent)
+            .Where(e => e != null);
+
+        if (errorEvents.Any())
+            return new BackendQueryResult(0, false, string.Join("\n", errorEvents));
+
+        await _stationOrderSummaryRepository.Save(orderSummaryAggregate);
         token.ThrowIfCancellationRequested();
 
         var buybackAmount = 0.0m;
-        var itemTypeLookup = await _itemTypeRepository.GetLookupById();
-        token.ThrowIfCancellationRequested();
 
-        foreach (var item in buybackItems)
+        foreach (var contractItem in contractItems)
         {
-            if (!itemTypeLookup.TryGetValue(item.ItemTypeId, out var itemType))
-                continue;
-
-            var orderSummary = await _stationOrderSummaryRepository.GetOrderSummary(station, itemType.Name);
-            buybackAmount += (orderSummary.Price * item.Volume);
+            var orderSummary = await _stationOrderSummaryRepository.GetOrderSummary(station, contractItem.Item.Name);
+            buybackAmount += (orderSummary.Price * contractItem.Volume);
         }
 
         var tax = buybackAmount * (query.BuybackTaxPercentage / 100);
@@ -75,47 +73,35 @@ internal class BuybackQueryHandler : IRequestHandler<BuybackQuery, BackendQueryR
         return new BackendQueryResult(buybackAmount - tax, true, string.Empty); 
     }
 
-    private async Task<IEnumerable<Domain.BuybackItem>> GetBuybackItems(BuybackQuery query)
+    private async Task<IEnumerable<ContractItem>> GetContractItems(BuybackQuery query)
     {
-        var itemTypeLookup = await _itemTypeRepository.GetLookupByName();
+        var itemTypeLookup = await _itemTypeRepository.GetLookupByItemTypeName();
 
-        var buybackItems = new List<Domain.BuybackItem>();
+        var contractcontractItems = new List<ContractItem>();
 
         foreach (var item in query.Items)
         {
-            if (itemTypeLookup.TryGetValue(item.ItemTypeName, out var itemType))
-                buybackItems.Add(new Domain.BuybackItem(itemType.Id, item.Volume));
+            if (!itemTypeLookup.TryGetValue(item.ItemTypeName, out var itemType))
+                itemType = new ItemType(0, item.ItemTypeName, 0);
+
+            contractcontractItems.Add(new ContractItem(itemType, item.Volume));
         }
 
-        if (query.ShouldCalculateBuybackAfterRefinement)
-        {
-            var reifinedItems = new List<Domain.BuybackItem>();
-            foreach (var item in buybackItems)
-                reifinedItems.AddRange(await _refinementRepository.GetRefinedItems(item));
-
-            return reifinedItems;
-        }
-
-        return buybackItems;
+        return contractcontractItems;
     }
 
-    private async Task RefreshOrderSummaries(
+    private async Task<IEnumerable<object>> RefreshOrderSummaries(
         Station station,
-        IEnumerable<Domain.BuybackItem> items,
-        StationOrderSummaryAggregate aggregate,
+        IEnumerable<ContractItem> contractItems,
+        StationOrderSummaryAggregate orderSummaryAggregate,
         CancellationToken token)
     {
-        var itemTypeLookup = await _itemTypeRepository.GetLookupById();
-
         var currentDateTime = DateTime.UtcNow;
 
-        foreach (var item in items)
-        {
-            if (itemTypeLookup.TryGetValue(item.ItemTypeId, out var itemType))
-                aggregate.RefreshOrderSummary(itemType.Name, item.Volume, currentDateTime);
-        }
+        foreach (var contractItem in contractItems)
+            orderSummaryAggregate.RefreshOrderSummary(contractItem.Item.Name, contractItem.Volume, currentDateTime);
 
-        var invalidEvents = aggregate.DomainEvents?
+        var invalidEvents = orderSummaryAggregate.DomainEvents?
             .Where(e => e is InvalidOrderSummaryNoticedEvent)?
             .Select(e => e as InvalidOrderSummaryNoticedEvent) ?? Enumerable.Empty<InvalidOrderSummaryNoticedEvent>();
 
@@ -128,11 +114,13 @@ internal class BuybackQueryHandler : IRequestHandler<BuybackQuery, BackendQueryR
 
             token.ThrowIfCancellationRequested();
             
-            aggregate.UpdateOrderSummary(
+            orderSummaryAggregate.UpdateOrderSummary(
                 invalidEvent.Item,
                 invalidEvent.Volume,
                 orders,
                 currentDateTime);
         }
+
+        return orderSummaryAggregate?.DomainEvents ?? Enumerable.Empty<object>();
     }
 }

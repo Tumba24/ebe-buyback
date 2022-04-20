@@ -22,7 +22,7 @@ public class InMemoryStationOrderSummaryAggregateRepository : IStationOrderSumma
         if (!_orderSummaryCollectionLookup.TryGetValue(station.Name, out var orderSummaryLookup))
             orderSummaryLookup = new Dictionary<int, OrderSummary>();
 
-        var lookupbyName = await _itemTypeRepository.GetLookupByName();
+        var lookupbyName = await _itemTypeRepository.GetLookupByItemTypeName();
 
         return new StationOrderSummaryAggregate(
             itemTypeLookup: lookupbyName,
@@ -33,7 +33,7 @@ public class InMemoryStationOrderSummaryAggregateRepository : IStationOrderSumma
 
     public async Task<OrderSummary> GetOrderSummary(Station station, string itemTypeName)
     {
-        var itemTypeLookup = await _itemTypeRepository.GetLookupByName();
+        var itemTypeLookup = await _itemTypeRepository.GetLookupByItemTypeName();
 
         if (!itemTypeLookup.TryGetValue(itemTypeName, out var itemType))
             throw new ArgumentException("Item type name not recognized.");
