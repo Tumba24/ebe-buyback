@@ -23,7 +23,7 @@ public class BuybackController : ControllerBase
         decimal buybackTaxPercentage = 10,
         decimal buybackEfficiencyPercentage = 75)
     {
-        List<BuybackItem> items = new List<BuybackItem>();
+        var refinedQueryItems = new List<RefinedQueryItem>();
 
         using (StringReader reader = new StringReader(rawInput))
         {
@@ -42,24 +42,32 @@ public class BuybackController : ControllerBase
                 if (!Int32.TryParse(parts[1], out var volume))
                     return BadRequest("The second part of each line must be a valid 32bit integer that indicates volume.");
 
-                items.Add(new BuybackItem(parts[0], volume));
+                refinedQueryItems.Add(new RefinedQueryItem(parts[0], volume));
             }
         }
 
         if (shouldCalculateBuybackAfterRefinement)
         {
-            var refinementResult = await _mediator.Send(new RefinedQuery(items, buybackEfficiencyPercentage));
+            var refinementResult = await _mediator.Send(new RefinedQuery(refinedQueryItems, buybackEfficiencyPercentage));
             if (!refinementResult.OK)
                 return BadRequest(refinementResult.errorMessage);
 
-            items.Clear();
-            items.AddRange(refinementResult.Items);
+            refinedQueryItems.Clear();
+            refinedQueryItems.AddRange(refinementResult.Items);
         }
+
+        var refreshCommandItems = refinedQueryItems
+            .Select(i => new OrderSummaryRefreshCommandItem(i.ItemTypeName, i.Volume));
+
+        await _mediator.Send(new OrderSummaryRefreshCommand(station, refreshCommandItems));
+
+        var buybackQueryItems = refinedQueryItems
+            .Select(i => new BuybackQueryItem(i.ItemTypeName, i.Volume));
 
         var buybackResult = await _mediator.Send(
             new BuybackQuery(
                 station, 
-                items,
+                buybackQueryItems,
                 buybackTaxPercentage));
 
         if (buybackResult.OK)

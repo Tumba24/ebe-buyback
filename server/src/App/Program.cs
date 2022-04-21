@@ -14,6 +14,7 @@ builder.Services.AddScoped<IItemTypeRepository, InMemoryItemTypeRepository>();
 builder.Services.AddScoped<IOrderRepository, EsiOrderRepository>();
 builder.Services.AddScoped<IRefinedContractItemAggregateRepository, InMemoryRefinedContractItemAggregateRepository>();
 builder.Services.AddScoped<IStationOrderSummaryAggregateRepository, InMemoryStationOrderSummaryAggregateRepository>();
+builder.Services.AddScoped<IStationRepository, InMemoryStationRepository>();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();

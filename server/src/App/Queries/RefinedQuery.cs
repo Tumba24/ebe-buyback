@@ -3,11 +3,11 @@ using MediatR;
 
 namespace EveBuyback.App;
 
-public record RefinedQuery(IEnumerable<BuybackItem> Items, decimal BuybackEfficiencyPercentage) : IRequest<RefinedQueryResult>;
+public record RefinedQuery(IEnumerable<RefinedQueryItem> Items, decimal BuybackEfficiencyPercentage) : IRequest<RefinedQueryResult>;
 
-public record UnrefinedItem(string ItemTypeName, int Volume);
+public record RefinedQueryItem(string ItemTypeName, int Volume);
 
-public record RefinedQueryResult(IEnumerable<BuybackItem> Items, bool OK, string errorMessage);
+public record RefinedQueryResult(IEnumerable<RefinedQueryItem> Items, bool OK, string errorMessage);
 
 internal class RefinedQueryHandler : IRequestHandler<RefinedQuery, RefinedQueryResult>
 {
@@ -27,7 +27,7 @@ internal class RefinedQueryHandler : IRequestHandler<RefinedQuery, RefinedQueryR
         var itemTypeLookup = await _itemTypeRepository.GetLookupByItemTypeName();
         token.ThrowIfCancellationRequested();
 
-        var refinedItems = new List<BuybackItem>();
+        var refinedItems = new List<RefinedQueryItem>();
 
         foreach (var item in query.Items)
         {
@@ -62,12 +62,12 @@ internal class RefinedQueryHandler : IRequestHandler<RefinedQuery, RefinedQueryR
                     if (refinedEvent is null)
                         continue;
                     
-                    refinedItems.Add(new BuybackItem(refinedEvent.Item.Name, refinedEvent.Volume));
+                    refinedItems.Add(new RefinedQueryItem(refinedEvent.Item.Name, refinedEvent.Volume));
                 }
             }
             else
             {
-                refinedItems.Add(new BuybackItem(item.ItemTypeName, item.Volume));
+                refinedItems.Add(new RefinedQueryItem(item.ItemTypeName, item.Volume));
             }
         }
 
