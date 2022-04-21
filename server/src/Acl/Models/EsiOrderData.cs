@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Evebuyback.Data;
+namespace Evebuyback.Acl;
 
 internal class EveOrderData
 {

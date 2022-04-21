@@ -1,4 +1,4 @@
-namespace Evebuyback.Data;
+namespace Evebuyback.Acl;
 
 internal class ItemTypeMaterialData
 {

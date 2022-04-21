@@ -1,8 +1,7 @@
-using System.Dynamic;
 using EveBuyback.Domain;
 using YamlDotNet.Serialization.NamingConventions;
 
-namespace Evebuyback.Data;
+namespace Evebuyback.Acl;
 
 public class InMemoryItemTypeRepository : IItemTypeRepository
 {
@@ -21,9 +20,9 @@ public class InMemoryItemTypeRepository : IItemTypeRepository
         IDictionary<int, ItemType> itemTypeLookup 
             = new Dictionary<int, ItemType>();
 
-        var assembly = typeof(InMemoryStationOrderSummaryAggregateRepository).Assembly;
+        var assembly = typeof(InMemoryItemTypeRepository).Assembly;
 
-        using (var stream = assembly.GetManifestResourceStream("EveBuyback.Data.Resources.typeIDs.yaml"))
+        using (var stream = assembly.GetManifestResourceStream("EveBuyback.Acl.Resources.typeIDs.yaml"))
         using (var reader = new StreamReader(stream ?? new MemoryStream()))
         {
             if (stream is null) throw new InvalidOperationException("Failed to get type id resource stream.");

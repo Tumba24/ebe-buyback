@@ -1,3 +1,5 @@
+namespace Evebuyback.Acl;
+
 internal class ItemTypeData
 {
     public ItemTypeNameData? Name { get; set; }

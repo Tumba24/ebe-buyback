@@ -1,8 +1,7 @@
-using System.Dynamic;
 using EveBuyback.Domain;
 using YamlDotNet.Serialization.NamingConventions;
 
-namespace Evebuyback.Data;
+namespace Evebuyback.Acl;
 
 public class InMemoryRefinedContractItemAggregateRepository : IRefinedContractItemAggregateRepository
 {
@@ -46,9 +45,9 @@ public class InMemoryRefinedContractItemAggregateRepository : IRefinedContractIt
         IDictionary<int, IEnumerable<ItemTypeMaterialItemData>> refinementLookup 
             = new Dictionary<int, IEnumerable<ItemTypeMaterialItemData>>();
 
-        var assembly = typeof(InMemoryStationOrderSummaryAggregateRepository).Assembly;
+        var assembly = typeof(InMemoryRefinedContractItemAggregateRepository).Assembly;
 
-        using (var stream = assembly.GetManifestResourceStream("EveBuyback.Data.Resources.typeMaterials.yaml"))
+        using (var stream = assembly.GetManifestResourceStream("EveBuyback.Acl.Resources.typeMaterials.yaml"))
         using (var reader = new StreamReader(stream ?? new MemoryStream()))
         {
             if (stream is null) throw new InvalidOperationException("Failed to get type materials resource stream.");
