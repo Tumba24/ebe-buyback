@@ -31,7 +31,8 @@ public class StationOrderSummaryAggregate
 
         if (_orderSummaryLookup.TryGetValue(itemType.Id, out var summary) &&
             summary.ExpirationDateTime > currentDateTime && 
-            summary.VolumeRemaining >= contractItem.Volume)
+            summary.VolumeRemaining >= contractItem.Volume &&
+            summary.MinVolume <= contractItem.Volume)
         {
             _domainEvents.Add(new OrderSummaryRefreshAbortedEvent.OldSummaryIsStillValid(summary));
             return;
@@ -70,7 +71,7 @@ public class StationOrderSummaryAggregate
 
         if (!ordersToConsider.Any())
         {
-            UpdateOrderSummary(new OrderSummary(false, true, 0, item, 0, currentDateTime.AddSeconds(2)));
+            UpdateOrderSummary(new OrderSummary(false, true, 0, item, 0, 1, currentDateTime.AddSeconds(2)));
             return 0;
         }
 
@@ -79,6 +80,7 @@ public class StationOrderSummaryAggregate
         int totalOrderVolumeRemaining = 0;
         DateTime firstOrderExpirationDateTime = currentDateTime.AddMinutes(5);
         var orderIndex = 0;
+        var maxMinVolume = 1;
 
         foreach (var order in ordersToConsider)
         {
@@ -94,6 +96,7 @@ public class StationOrderSummaryAggregate
 
             orderIndex++;
             maxPrice = order.Price;
+            maxMinVolume = maxMinVolume > order.MinVolume ? maxMinVolume : order.MinVolume;
 
             volumeToFill -= volumeToFill > order.VolumeRemaining ? 
                 order.VolumeRemaining : 
@@ -113,6 +116,7 @@ public class StationOrderSummaryAggregate
                     Price: maxPrice,
                     Item: item,
                     VolumeRemaining: totalOrderVolumeRemaining,
+                    MinVolume: maxMinVolume,
                     ExpirationDateTime : firstOrderExpirationDateTime
                 ));
 
@@ -126,6 +130,7 @@ public class StationOrderSummaryAggregate
             Price: maxPrice,
             Item: item,
             VolumeRemaining: totalOrderVolumeRemaining,
+            MinVolume: maxMinVolume,
             ExpirationDateTime : firstOrderExpirationDateTime
         ));
 

@@ -78,6 +78,7 @@ public class StationOrderSummaryStepDefinitions
             Price: Convert.ToDecimal(lookup["Price"]),
             Item: item,
             VolumeRemaining: Convert.ToInt32(lookup["VolumeRemaining"]),
+            MinVolume: Convert.ToInt32(lookup["MinVolume"]),
             ExpirationDateTime: Convert.ToDateTime(lookup["ExpirationDateTime"])
         ));
     }

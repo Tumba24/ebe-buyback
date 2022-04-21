@@ -8,22 +8,22 @@ Background:
     
 Scenario: Do not refresh if current summary is still ok to use
     Given order summary:
-    | Item         | Price | VolumeRemaining | ShouldBeUsedForBuybackCalculations | ExpirationDateTime   |
-    | Veldspar     | 0.10  | 1000000         | true                               | 2022-04-18T00:00:00  |
+    | Item         | Price | MinVolume | VolumeRemaining | ShouldBeUsedForBuybackCalculations | ExpirationDateTime   |
+    | Veldspar     | 0.10  | 1         | 1000000         | true                               | 2022-04-18T00:00:00  |
     When refreshing order summary for item 'Veldspar' and a volume of '10' at '2022-04-17T00:00:00'
     Then refresh aborted because summary is still valid
 
 Scenario: Do not refresh if item is invalid
     Given order summary:
-    | Item         | Price | VolumeRemaining | ShouldBeUsedForBuybackCalculations | ExpirationDateTime   |
-    | Veldspar     | 0.10  | 1000000         | true                               | 2022-04-18T00:00:00  |
+    | Item         | Price | MinVolume | VolumeRemaining | ShouldBeUsedForBuybackCalculations | ExpirationDateTime   |
+    | Veldspar     | 0.10  | 1         | 1000000         | true                               | 2022-04-18T00:00:00  |
     When refreshing order summary for item 'unkown' and a volume of '10' at '2022-04-17T00:00:00'
     Then refresh aborted because item is not valid
 
 Scenario: Do not refresh if current summary is still ok to use even if it should not be used for buyback calculations
     Given order summary:
-    | Item         | Price | VolumeRemaining | ShouldBeUsedForBuybackCalculations | ExpirationDateTime   |
-    | Veldspar     | 0.10  | 1000000         | false                              | 2022-04-18T00:00:00  |
+    | Item         | Price | MinVolume | VolumeRemaining | ShouldBeUsedForBuybackCalculations | ExpirationDateTime   |
+    | Veldspar     | 0.10  | 1         | 1000000         | false                              | 2022-04-18T00:00:00  |
     When refreshing order summary for item 'Veldspar' and a volume of '10' at '2022-04-17T00:00:00'
     Then refresh aborted because summary is still valid
 
@@ -33,14 +33,14 @@ Scenario: Refresh if no current summary exists
 
 Scenario: Refresh if current summary is expired
     Given order summary:
-    | Item         | Price | VolumeRemaining | ShouldBeUsedForBuybackCalculations | ExpirationDateTime   |
-    | Veldspar     | 0.10  | 1000000         | true                               | 2022-04-18T00:00:00  |
+    | Item         | Price | MinVolume | VolumeRemaining | ShouldBeUsedForBuybackCalculations | ExpirationDateTime   |
+    | Veldspar     | 0.10  | 1         | 1000000         | true                               | 2022-04-18T00:00:00  |
     When refreshing order summary for item 'Veldspar' and a volume of '10' at '2022-04-18T00:00:01'
     Then refresh marked current summary version as invalid
 
 Scenario: Refresh if there is not enough volume remaining
     Given order summary:
-    | Item         | Price | VolumeRemaining | ShouldBeUsedForBuybackCalculations | ExpirationDateTime   |
-    | Veldspar     | 0.10  | 9               | true                               | 2022-04-18T00:00:00  |
+    | Item         | Price | MinVolume | VolumeRemaining | ShouldBeUsedForBuybackCalculations | ExpirationDateTime   |
+    | Veldspar     | 0.10  | 1         | 9               | true                               | 2022-04-18T00:00:00  |
     When refreshing order summary for item 'Veldspar' and a volume of '10' at '2022-04-17T00:00:00'
     Then refresh marked current summary version as invalid

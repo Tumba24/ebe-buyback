@@ -116,12 +116,14 @@ this.FeatureBackground();
                 TechTalk.SpecFlow.Table table2 = new TechTalk.SpecFlow.Table(new string[] {
                             "Item",
                             "Price",
+                            "MinVolume",
                             "VolumeRemaining",
                             "ShouldBeUsedForBuybackCalculations",
                             "ExpirationDateTime"});
                 table2.AddRow(new string[] {
                             "Veldspar",
                             "0.10",
+                            "1",
                             "1000000",
                             "true",
                             "2022-04-18T00:00:00"});
@@ -162,12 +164,14 @@ this.FeatureBackground();
                 TechTalk.SpecFlow.Table table3 = new TechTalk.SpecFlow.Table(new string[] {
                             "Item",
                             "Price",
+                            "MinVolume",
                             "VolumeRemaining",
                             "ShouldBeUsedForBuybackCalculations",
                             "ExpirationDateTime"});
                 table3.AddRow(new string[] {
                             "Veldspar",
                             "0.10",
+                            "1",
                             "1000000",
                             "true",
                             "2022-04-18T00:00:00"});
@@ -210,12 +214,14 @@ this.FeatureBackground();
                 TechTalk.SpecFlow.Table table4 = new TechTalk.SpecFlow.Table(new string[] {
                             "Item",
                             "Price",
+                            "MinVolume",
                             "VolumeRemaining",
                             "ShouldBeUsedForBuybackCalculations",
                             "ExpirationDateTime"});
                 table4.AddRow(new string[] {
                             "Veldspar",
                             "0.10",
+                            "1",
                             "1000000",
                             "false",
                             "2022-04-18T00:00:00"});
@@ -287,12 +293,14 @@ this.FeatureBackground();
                 TechTalk.SpecFlow.Table table5 = new TechTalk.SpecFlow.Table(new string[] {
                             "Item",
                             "Price",
+                            "MinVolume",
                             "VolumeRemaining",
                             "ShouldBeUsedForBuybackCalculations",
                             "ExpirationDateTime"});
                 table5.AddRow(new string[] {
                             "Veldspar",
                             "0.10",
+                            "1",
                             "1000000",
                             "true",
                             "2022-04-18T00:00:00"});
@@ -333,12 +341,14 @@ this.FeatureBackground();
                 TechTalk.SpecFlow.Table table6 = new TechTalk.SpecFlow.Table(new string[] {
                             "Item",
                             "Price",
+                            "MinVolume",
                             "VolumeRemaining",
                             "ShouldBeUsedForBuybackCalculations",
                             "ExpirationDateTime"});
                 table6.AddRow(new string[] {
                             "Veldspar",
                             "0.10",
+                            "1",
                             "9",
                             "true",
                             "2022-04-18T00:00:00"});

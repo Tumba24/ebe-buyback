@@ -6,5 +6,6 @@ public record OrderSummary(
     decimal Price,
     ItemType Item,
     int VolumeRemaining,
+    int MinVolume,
     DateTime ExpirationDateTime
 );

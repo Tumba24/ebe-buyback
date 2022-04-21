@@ -39,7 +39,10 @@ public class RefinedContractItemAggregate
                     continue;
                 }
 
-                var volume = contractItem.Volume * ((decimal)materialItem.Quantity / contractItem.Item.PortionSize);
+                var remainder = contractItem.Volume % contractItem.Item.PortionSize;
+                var refineableVolume = contractItem.Volume - remainder;
+
+                var volume = refineableVolume * ((decimal)materialItem.Quantity / contractItem.Item.PortionSize);
                 volume = volume * (buybackEfficiencyPercentage / 100);
 
                 refinedEvents.Add(new MaterialRefinedEvent(itemType, (int)Math.Floor(volume)));
