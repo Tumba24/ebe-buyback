@@ -7,7 +7,7 @@ public record RefinedQuery(IEnumerable<RefinedQueryItem> Items, decimal BuybackE
 
 public record RefinedQueryItem(string ItemTypeName, int Volume);
 
-public record RefinedQueryResult(IEnumerable<RefinedQueryItem> Items, bool OK, string errorMessage);
+public record RefinedQueryResult(IEnumerable<RefinedQueryItem> Items, bool OK, string ErrorMessage);
 
 internal class RefinedQueryHandler : IRequestHandler<RefinedQuery, RefinedQueryResult>
 {

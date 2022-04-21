@@ -11,7 +11,7 @@ public record BuybackQuery(
 
 public record BuybackQueryItem(string ItemTypeName, int Volume);
 
-public record BackendQueryResult(decimal BuybackAmount, bool OK, string errorMessage);
+public record BackendQueryResult(decimal BuybackAmount, bool OK, string ErrorMessage);
 
 internal class BuybackQueryHandler : IRequestHandler<BuybackQuery, BackendQueryResult>
 {

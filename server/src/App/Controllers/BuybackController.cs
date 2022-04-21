@@ -16,53 +16,40 @@ public class BuybackController : ControllerBase
     }
 
     [Consumes("text/plain")]
-    [HttpPost("calculate-amount")]
-    public async Task<ActionResult<decimal>> CalculateBuybackAmount(
+    [HttpPost("calculate")]
+    public async Task<ActionResult<decimal>> Calculate(
         [FromBody] string rawInput,
         string station = "Jita",
         bool shouldCalculateBuybackAfterRefinement = true,
         decimal buybackTaxPercentage = 10,
         decimal buybackEfficiencyPercentage = 75)
     {
-        var refinedQueryItems = new List<RefinedQueryItem>();
+        var contractResult = await _mediator.Send(new ContractQuery(rawInput));
+        if (!contractResult.OK)
+            BadRequest(contractResult.ErrorMessage);
 
-        using (StringReader reader = new StringReader(rawInput))
-        {
-            string? line;
-            while ((line = await reader.ReadLineAsync()) != null)
-            {
-                if (string.IsNullOrEmpty(line))
-                    continue;
-                
-                line = line.Trim();
-                
-                var parts = line.Split(new string[] { "\t", "  " }, StringSplitOptions.RemoveEmptyEntries);
-                if (parts.Length < 2)
-                    return BadRequest("Each line should split into two parts. Parts should be split by a tab or two sapces.");
-
-                if (!Int32.TryParse(parts[1], NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out var volume))
-                    return BadRequest("The second part of each line must be a valid 32bit integer that indicates volume.");
-
-                refinedQueryItems.Add(new RefinedQueryItem(parts[0], volume));
-            }
-        }
+        var contractItems = new List<ContractQueryItem>(contractResult.Items ?? Enumerable.Empty<ContractQueryItem>());
 
         if (shouldCalculateBuybackAfterRefinement)
         {
+            var refinedQueryItems = contractItems
+                .Select(i => new RefinedQueryItem(i.ItemTypeName, i.Volume));
+
             var refinementResult = await _mediator.Send(new RefinedQuery(refinedQueryItems, buybackEfficiencyPercentage));
             if (!refinementResult.OK)
-                return BadRequest(refinementResult.errorMessage);
+                return BadRequest(refinementResult.ErrorMessage);
 
-            refinedQueryItems.Clear();
-            refinedQueryItems.AddRange(refinementResult.Items);
+            contractItems.Clear();
+            contractItems.AddRange(refinementResult.Items
+                .Select(i => new ContractQueryItem(i.ItemTypeName, i.Volume)));
         }
 
-        var refreshCommandItems = refinedQueryItems
+        var refreshCommandItems = contractItems
             .Select(i => new OrderSummaryRefreshCommandItem(i.ItemTypeName, i.Volume));
 
         await _mediator.Send(new OrderSummaryRefreshCommand(station, refreshCommandItems));
 
-        var buybackQueryItems = refinedQueryItems
+        var buybackQueryItems = contractItems
             .Select(i => new BuybackQueryItem(i.ItemTypeName, i.Volume));
 
         var buybackResult = await _mediator.Send(
@@ -74,6 +61,6 @@ public class BuybackController : ControllerBase
         if (buybackResult.OK)
             return buybackResult.BuybackAmount;
 
-        return BadRequest(buybackResult.errorMessage);
+        return BadRequest(buybackResult.ErrorMessage);
     }
 }

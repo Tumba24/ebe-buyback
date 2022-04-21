@@ -18,6 +18,8 @@ public class RefinedContractItemAggregate
 
     public void Refine(IEnumerable<VerifiedContractItem> contractItems, decimal buybackEfficiencyPercentage)
     {
+        var refinedEvents = new List<MaterialRefinedEvent>();
+
         foreach (var contractItem in contractItems)
         {
             var materialItems = _materialItems
@@ -40,8 +42,15 @@ public class RefinedContractItemAggregate
                 var volume = contractItem.Volume * ((decimal)materialItem.Quantity / contractItem.Item.PortionSize);
                 volume = volume * (buybackEfficiencyPercentage / 100);
 
-                _domainEvents.Add(new MaterialRefinedEvent(itemType, (int)Math.Floor(volume)));
+                refinedEvents.Add(new MaterialRefinedEvent(itemType, (int)Math.Floor(volume)));
             }
         }
+
+        var aggregatedEvents = refinedEvents
+            .GroupBy(i => i.Item.Id)
+            .Select(g => new MaterialRefinedEvent(g.First().Item, g.Sum(i => i.Volume)));
+
+        foreach (var refinedEvent in aggregatedEvents)
+            _domainEvents.Add(refinedEvent);
     }
 }
