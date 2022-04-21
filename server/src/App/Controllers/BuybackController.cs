@@ -1,3 +1,4 @@
+using System.Globalization;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -39,7 +40,7 @@ public class BuybackController : ControllerBase
                 if (parts.Length < 2)
                     return BadRequest("Each line should split into two parts. Parts should be split by a tab or two sapces.");
 
-                if (!Int32.TryParse(parts[1], out var volume))
+                if (!Int32.TryParse(parts[1], NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out var volume))
                     return BadRequest("The second part of each line must be a valid 32bit integer that indicates volume.");
 
                 refinedQueryItems.Add(new RefinedQueryItem(parts[0], volume));
