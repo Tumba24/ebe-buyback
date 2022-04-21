@@ -96,7 +96,7 @@ public class StationOrderSummaryStepDefinitions
 
     [When("refreshing order summary for item '(.*)' and a volume of '(.*)' at '(.*)'")]
     public void WhenRefreshingOrderSummary(string itemTypeName, int volume, DateTime currentDateTime) =>
-        Aggregate.RefreshOrderSummary(itemTypeName, volume, currentDateTime);
+        Aggregate.RefreshOrderSummary(new ContractItem(itemTypeName, volume), currentDateTime);
 
     [When("updating order summary for item '(.*)' and a volume of '(.*)' at '(.*)'")]
     public void WhenUpdatingOrderSummary(string itemTypeName, int volume, DateTime currentDateTime)

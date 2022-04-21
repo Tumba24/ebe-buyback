@@ -2,5 +2,5 @@ namespace EveBuyback.Domain;
 
 public interface IRefinedContractItemAggregateRepository
 {
-    Task<RefinedContractItemAggregate> Get(int itemTypeId);
+    Task<RefinedContractItemAggregate> Get(IEnumerable<int> itemTypeIds);
 }

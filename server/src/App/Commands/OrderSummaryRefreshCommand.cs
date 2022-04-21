@@ -65,17 +65,17 @@ internal class OrderSummaryRefreshCommandHandler : IRequestHandler<OrderSummaryR
     {
         var itemTypeLookup = await _itemTypeRepository.GetLookupByItemTypeName();
 
-        var contractcontractItems = new List<ContractItem>();
+        var contractItems = new List<ContractItem>();
 
         foreach (var item in command.Items)
         {
             if (!itemTypeLookup.TryGetValue(item.ItemTypeName, out var itemType))
                 itemType = new ItemType(0, item.ItemTypeName, 0);
 
-            contractcontractItems.Add(new ContractItem(itemType, item.Volume));
+            contractItems.Add(new ContractItem(itemType.Name, item.Volume));
         }
 
-        return contractcontractItems;
+        return contractItems;
     }
 
     private async Task<IEnumerable<object>> RefreshOrderSummaries(
@@ -87,7 +87,7 @@ internal class OrderSummaryRefreshCommandHandler : IRequestHandler<OrderSummaryR
         var currentDateTime = DateTime.UtcNow;
 
         foreach (var contractItem in contractItems)
-            orderSummaryAggregate.RefreshOrderSummary(contractItem.Item.Name, contractItem.Volume, currentDateTime);
+            orderSummaryAggregate.RefreshOrderSummary(contractItem, currentDateTime);
 
         var invalidEvents = orderSummaryAggregate.DomainEvents?
             .Where(e => e is InvalidOrderSummaryNoticedEvent)?

@@ -42,7 +42,7 @@ internal class BuybackQueryHandler : IRequestHandler<BuybackQuery, BackendQueryR
 
         foreach (var contractItem in contractItems)
         {
-            var orderSummary = await _stationOrderSummaryRepository.GetOrderSummary(station, contractItem.Item.Name);
+            var orderSummary = await _stationOrderSummaryRepository.GetOrderSummary(station, contractItem.ItemTypeName);
             buybackAmount += (orderSummary.Price * contractItem.Volume);
         }
 
@@ -56,16 +56,16 @@ internal class BuybackQueryHandler : IRequestHandler<BuybackQuery, BackendQueryR
     {
         var itemTypeLookup = await _itemTypeRepository.GetLookupByItemTypeName();
 
-        var contractcontractItems = new List<ContractItem>();
+        var contractItems = new List<ContractItem>();
 
         foreach (var item in query.Items)
         {
             if (!itemTypeLookup.TryGetValue(item.ItemTypeName, out var itemType))
                 itemType = new ItemType(0, item.ItemTypeName, 0);
 
-            contractcontractItems.Add(new ContractItem(itemType, item.Volume));
+            contractItems.Add(new ContractItem(itemType.Name, item.Volume));
         }
 
-        return contractcontractItems;
+        return contractItems;
     }
 }

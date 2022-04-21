@@ -16,20 +16,32 @@ public class RefinedContractItemAggregate
 
     public IEnumerable<object> DomainEvents => _domainEvents.ToArray();
 
-    public void Refine(ContractItem contractItem, decimal buybackEfficiencyPercentage)
+    public void Refine(IEnumerable<VerifiedContractItem> contractItems, decimal buybackEfficiencyPercentage)
     {
-        foreach (var materialItem in _materialItems)
+        foreach (var contractItem in contractItems)
         {
-            if (!_itemTypeLookup.TryGetValue(materialItem.MaterialItemTypeId, out var itemType))
+            var materialItems = _materialItems
+                .Where(i => i.UnrefinedItemTypeId == contractItem.Item.Id);
+
+            if (!materialItems.Any())
             {
-                _domainEvents.Add(new RefinementAbortedEvent.InvalidMaterialTypeId(materialItem.MaterialItemTypeId));
+                _domainEvents.Add(new MaterialNotRefinedEvent(contractItem));
                 continue;
             }
 
-            var volume = contractItem.Volume * ((decimal)materialItem.Quantity / contractItem.Item.PortionSize);
-            volume = volume * (buybackEfficiencyPercentage / 100);
+            foreach (var materialItem in materialItems)
+            {
+                if (!_itemTypeLookup.TryGetValue(materialItem.MaterialItemTypeId, out var itemType))
+                {
+                    _domainEvents.Add(new RefinementAbortedEvent.InvalidMaterialTypeId(materialItem.MaterialItemTypeId));
+                    continue;
+                }
 
-            _domainEvents.Add(new MaterialRefinedEvent(itemType, (int)Math.Floor(volume)));
+                var volume = contractItem.Volume * ((decimal)materialItem.Quantity / contractItem.Item.PortionSize);
+                volume = volume * (buybackEfficiencyPercentage / 100);
+
+                _domainEvents.Add(new MaterialRefinedEvent(itemType, (int)Math.Floor(volume)));
+            }
         }
     }
 }

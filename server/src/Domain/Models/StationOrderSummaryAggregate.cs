@@ -21,25 +21,23 @@ public class StationOrderSummaryAggregate
     public IEnumerable<object> DomainEvents => _domainEvents.ToArray();
     public IEnumerable<OrderSummary> UpdatedOrderSummaries => _updatedOrderSummaries.ToArray();
 
-    public void RefreshOrderSummary(string itemTypeName, int volume, DateTime currentDateTime)
+    public void RefreshOrderSummary(ContractItem contractItem, DateTime currentDateTime)
     {
-        if (itemTypeName is null) throw new ArgumentNullException(itemTypeName);
-
-        if (!_itemTypeLookup.TryGetValue(itemTypeName, out var itemType))
+        if (!_itemTypeLookup.TryGetValue(contractItem.ItemTypeName, out var itemType))
         {
-            _domainEvents.Add(new OrderSummaryRefreshAbortedEvent.InvalidItemTypeName(itemTypeName));
+            _domainEvents.Add(new OrderSummaryRefreshAbortedEvent.InvalidItemTypeName(contractItem.ItemTypeName));
             return;
         }
 
         if (_orderSummaryLookup.TryGetValue(itemType.Id, out var summary) &&
             summary.ExpirationDateTime > currentDateTime && 
-            summary.VolumeRemaining >= volume)
+            summary.VolumeRemaining >= contractItem.Volume)
         {
             _domainEvents.Add(new OrderSummaryRefreshAbortedEvent.OldSummaryIsStillValid(summary));
             return;
         }
 
-        _domainEvents.Add(new InvalidOrderSummaryNoticedEvent(itemType, volume));
+        _domainEvents.Add(new InvalidOrderSummaryNoticedEvent(itemType, contractItem.Volume));
     }
 
     public void UpdateOrderSummary(ItemType item, int volume, IEnumerable<Order> orders, DateTime currentDateTime)

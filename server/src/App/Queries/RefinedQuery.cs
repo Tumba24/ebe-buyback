@@ -24,53 +24,64 @@ internal class RefinedQueryHandler : IRequestHandler<RefinedQuery, RefinedQueryR
     
     public async Task<RefinedQueryResult> Handle(RefinedQuery query, CancellationToken token)
     {
-        var itemTypeLookup = await _itemTypeRepository.GetLookupByItemTypeName();
+        var refinedItems = new List<RefinedQueryItem>();
+
+        var contractItems = await GetContractItems(query);
         token.ThrowIfCancellationRequested();
 
-        var refinedItems = new List<RefinedQueryItem>();
+        var aggregate = await _refinementRepository.Get(contractItems.Select(i => i.Item.Id));
+        token.ThrowIfCancellationRequested();
+
+        aggregate.Refine(contractItems, query.BuybackEfficiencyPercentage);
+
+        var errorEvents = aggregate.DomainEvents
+            .Select(e => e as IErrorEvent)
+            .Where(e => e != null);
+
+        if (errorEvents.Any())
+            return new RefinedQueryResult(refinedItems, false, string.Join("\n", errorEvents));
+
+        var refinedEvents = aggregate.DomainEvents
+            .Select(e => e as MaterialRefinedEvent)
+            .Where(e => e != null);
+
+        foreach (var refinedEvent in refinedEvents)
+        {
+            if (refinedEvent is null)
+                continue;
+            
+            refinedItems.Add(new RefinedQueryItem(refinedEvent.Item.Name, refinedEvent.Volume));
+        }
+
+        var notRefinedEvents = aggregate.DomainEvents
+            .Select(e => e as MaterialNotRefinedEvent)
+            .Where(e => e != null);
+
+        foreach (var notRefinedEvent in notRefinedEvents)
+        {
+            if (notRefinedEvent is null)
+                continue;
+            
+            refinedItems.Add(new RefinedQueryItem(notRefinedEvent.Item.ItemTypeName, notRefinedEvent.Item.Volume));
+        }
+
+        return new RefinedQueryResult(refinedItems, true, string.Empty);
+    }
+
+    private async Task<IEnumerable<VerifiedContractItem>> GetContractItems(RefinedQuery query)
+    {
+        var itemTypeLookup = await _itemTypeRepository.GetLookupByItemTypeName();
+
+        var contractItems = new List<VerifiedContractItem>();
 
         foreach (var item in query.Items)
         {
             if (!itemTypeLookup.TryGetValue(item.ItemTypeName, out var itemType))
-            {
-                return new RefinedQueryResult(
-                    refinedItems, 
-                    false, 
-                    $"Invalid item type '{item.ItemTypeName}'. Item type not recognized.");
-            }
+                itemType = new ItemType(0, item.ItemTypeName, 0);
 
-            var aggregate = await _refinementRepository.Get(itemType.Id);
-            token.ThrowIfCancellationRequested();
-
-            aggregate.Refine(new ContractItem(itemType, item.Volume), query.BuybackEfficiencyPercentage);
-
-            var errorEvents = aggregate.DomainEvents
-                .Select(e => e as IErrorEvent)
-                .Where(e => e != null);
-
-            if (errorEvents.Any())
-                return new RefinedQueryResult(refinedItems, false, string.Join("\n", errorEvents));
-
-            var refinedEvents = aggregate.DomainEvents
-                .Select(e => e as MaterialRefinedEvent)
-                .Where(e => e != null);
-
-            if (refinedEvents.Any())
-            {
-                foreach (var refinedEvent in refinedEvents)
-                {
-                    if (refinedEvent is null)
-                        continue;
-                    
-                    refinedItems.Add(new RefinedQueryItem(refinedEvent.Item.Name, refinedEvent.Volume));
-                }
-            }
-            else
-            {
-                refinedItems.Add(new RefinedQueryItem(item.ItemTypeName, item.Volume));
-            }
+            contractItems.Add(new VerifiedContractItem(itemType, item.Volume));
         }
 
-        return new RefinedQueryResult(refinedItems, true, string.Empty);
+        return contractItems;
     }
 }

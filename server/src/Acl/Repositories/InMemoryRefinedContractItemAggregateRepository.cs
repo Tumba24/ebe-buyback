@@ -15,13 +15,17 @@ public class InMemoryRefinedContractItemAggregateRepository : IRefinedContractIt
         _itemTypeRepository = itemTypeRepository;
     }
 
-    public async Task<RefinedContractItemAggregate> Get(int itemTypeId)
+    public async Task<RefinedContractItemAggregate> Get(IEnumerable<int> itemTypeIds)
     {
         var itemTypeLookup = await _itemTypeRepository.GetLookupByItemTypeId();
+        var materialItems = new List<MaterialItem>();
+
+        foreach (var itemTypeId in itemTypeIds)
+            materialItems.AddRange(await GetMaterialItems(itemTypeId));
 
         return new RefinedContractItemAggregate(
             itemTypeLookup,
-            await GetMaterialItems(itemTypeId));
+            materialItems);
     }
 
     private async Task<IEnumerable<MaterialItem>> GetMaterialItems(int itemTypeId)
