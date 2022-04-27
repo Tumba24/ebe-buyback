@@ -33,7 +33,7 @@ internal class ContractQueryHandler : IRequestHandler<ContractQuery, ContractQue
                     return new ContractQueryResult(
                         null, 
                         false, 
-                        "Each line should split into two parts. Parts should be split by a tab or two sapces.");
+                        "Each line should split into two parts. Parts should be split by a tab or two spaces.");
                 }
 
                 if (!Int32.TryParse(parts[1], NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out var volume))
