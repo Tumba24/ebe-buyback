@@ -32,7 +32,8 @@ public class StationOrderSummaryAggregate
         if (_orderSummaryLookup.TryGetValue(itemType.Id, out var summary) &&
             summary.ExpirationDateTime > currentDateTime && 
             summary.VolumeRemaining >= contractItem.Volume &&
-            summary.MinVolume <= contractItem.Volume)
+            summary.MinVolume <= contractItem.Volume &&
+            (summary.LowerVolumeWithBetterPricing == null || summary.LowerVolumeWithBetterPricing < contractItem.Volume))
         {
             _domainEvents.Add(new OrderSummaryRefreshAbortedEvent.OldSummaryIsStillValid(summary));
             return;
@@ -71,7 +72,7 @@ public class StationOrderSummaryAggregate
 
         if (!ordersToConsider.Any())
         {
-            UpdateOrderSummary(new OrderSummary(false, true, 0, item, 0, 1, currentDateTime.AddSeconds(2)));
+            UpdateOrderSummary(new OrderSummary(false, true, 0, item, 0, 1, null, currentDateTime.AddSeconds(2)));
             return 0;
         }
 
@@ -81,6 +82,7 @@ public class StationOrderSummaryAggregate
         DateTime firstOrderExpirationDateTime = currentDateTime.AddMinutes(5);
         var orderIndex = 0;
         var maxMinVolume = 1;
+        int? lowerVolumeWithBetterPricing = null;
 
         foreach (var order in ordersToConsider)
         {
@@ -93,6 +95,9 @@ public class StationOrderSummaryAggregate
                 
                 continue;
             }
+
+            if (order.Price < maxPrice)
+                lowerVolumeWithBetterPricing = totalOrderVolumeRemaining;
 
             orderIndex++;
             maxPrice = order.Price;
@@ -117,6 +122,7 @@ public class StationOrderSummaryAggregate
                     Item: item,
                     VolumeRemaining: totalOrderVolumeRemaining,
                     MinVolume: maxMinVolume,
+                    LowerVolumeWithBetterPricing: lowerVolumeWithBetterPricing,
                     ExpirationDateTime : firstOrderExpirationDateTime
                 ));
 
@@ -131,6 +137,7 @@ public class StationOrderSummaryAggregate
             Item: item,
             VolumeRemaining: totalOrderVolumeRemaining,
             MinVolume: maxMinVolume,
+            LowerVolumeWithBetterPricing: lowerVolumeWithBetterPricing,
             ExpirationDateTime : firstOrderExpirationDateTime
         ));
 

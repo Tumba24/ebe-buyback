@@ -7,5 +7,6 @@ public record OrderSummary(
     ItemType Item,
     int VolumeRemaining,
     int MinVolume,
+    int? LowerVolumeWithBetterPricing,
     DateTime ExpirationDateTime
 );
