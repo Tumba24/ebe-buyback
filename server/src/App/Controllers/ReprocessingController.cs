@@ -22,7 +22,7 @@ public class ReprocessingController : ControllerBase
     {
         var contractResult = await _mediator.Send(new ContractQuery(rawInput));
         if (!contractResult.OK)
-            BadRequest(contractResult.ErrorMessage);
+            return BadRequest(contractResult.ErrorMessage);
 
         var contractItems = new List<ContractQueryItem>(contractResult.Items ?? Enumerable.Empty<ContractQueryItem>());
 
