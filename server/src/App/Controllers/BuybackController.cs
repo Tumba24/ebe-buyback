@@ -36,6 +36,7 @@ public class BuybackController : ControllerBase
                 .Select(i => new RefinedQueryItem(i.ItemTypeName, i.Volume));
 
             var refinementResult = await _mediator.Send(new RefinedQuery(refinedQueryItems, buybackEfficiencyPercentage));
+            
             if (!refinementResult.OK)
                 return BadRequest(refinementResult.ErrorMessage);
 
@@ -47,7 +48,9 @@ public class BuybackController : ControllerBase
         var refreshCommandItems = contractItems
             .Select(i => new OrderSummaryRefreshCommandItem(i.ItemTypeName, i.Volume));
 
-        await _mediator.Send(new OrderSummaryRefreshCommand(station, refreshCommandItems));
+        var refreshResult = await _mediator.Send(new OrderSummaryRefreshCommand(station, refreshCommandItems));
+        if (!refreshResult.OK)
+            return BadRequest(refreshResult.ErrorMessage);
 
         var buybackQueryItems = contractItems
             .Select(i => new BuybackQueryItem(i.ItemTypeName, i.Volume));

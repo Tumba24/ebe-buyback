@@ -10,7 +10,7 @@ public record OrderSummaryRefreshCommand(
 
 public record OrderSummaryRefreshCommandItem(string ItemTypeName, int Volume);
 
-public record OrderSummaryRefreshCommandResult(bool OK, string errorMessage);
+public record OrderSummaryRefreshCommandResult(bool OK, string ErrorMessage);
 
 internal class OrderSummaryRefreshCommandHandler : IRequestHandler<OrderSummaryRefreshCommand, OrderSummaryRefreshCommandResult>
 {
@@ -39,8 +39,11 @@ internal class OrderSummaryRefreshCommandHandler : IRequestHandler<OrderSummaryR
         if (station == null)
             return new OrderSummaryRefreshCommandResult(false, "Invalid station. Station not recognized.");
 
-        var contractItems = await GetContractItems(command);
+        var itemTypeLookup = await _itemTypeRepository.GetLookupByItemTypeName();
         token.ThrowIfCancellationRequested();
+
+        if (!TryGetContractItems(command, itemTypeLookup, out var contractItems, out var errorMessage))
+            return new OrderSummaryRefreshCommandResult(false, errorMessage ?? "Failed to get contract items.");
 
         var orderSummaryAggregate = await _stationOrderSummaryRepository.Get(station);
         token.ThrowIfCancellationRequested();
@@ -61,21 +64,27 @@ internal class OrderSummaryRefreshCommandHandler : IRequestHandler<OrderSummaryR
         return new OrderSummaryRefreshCommandResult(true, string.Empty);
     }
 
-    private async Task<IEnumerable<ContractItem>> GetContractItems(OrderSummaryRefreshCommand command)
+    private bool TryGetContractItems(
+        OrderSummaryRefreshCommand command,
+        IDictionary<string, ItemType> itemTypeLookup,
+        out List<ContractItem> contractItems,
+        out string? errorMessage)
     {
-        var itemTypeLookup = await _itemTypeRepository.GetLookupByItemTypeName();
-
-        var contractItems = new List<ContractItem>();
+        contractItems = new List<ContractItem>();
 
         foreach (var item in command.Items)
         {
             if (!itemTypeLookup.TryGetValue(item.ItemTypeName, out var itemType))
-                itemType = new ItemType(0, item.ItemTypeName, 0);
+            {
+                errorMessage = $"Invalid item: '{item.ItemTypeName}'. Item not recognized.";
+                return false;
+            }
 
             contractItems.Add(new ContractItem(itemType.Name, item.Volume));
         }
 
-        return contractItems;
+        errorMessage = null;
+        return true;
     }
 
     private async Task<IEnumerable<object>> RefreshOrderSummaries(
