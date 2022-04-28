@@ -79,6 +79,7 @@ public class StationOrderSummaryStepDefinitions
             Item: item,
             VolumeRemaining: Convert.ToInt32(lookup["VolumeRemaining"]),
             MinVolume: Convert.ToInt32(lookup["MinVolume"]),
+            LowerVolumeWithBetterPricing: null,
             ExpirationDateTime: Convert.ToDateTime(lookup["ExpirationDateTime"])
         ));
     }
