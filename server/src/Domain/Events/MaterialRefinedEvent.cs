@@ -1,3 +1,3 @@
 namespace EveBuyback.Domain;
 
-public record MaterialRefinedEvent(ItemType Item, int Volume);
+public record MaterialRefinedEvent(ItemType Item, long Volume);

@@ -9,7 +9,7 @@ public record BuybackQuery(
     IEnumerable<BuybackQueryItem> Items,
     decimal BuybackTaxPercentage) : IRequest<BackendQueryResult>;
 
-public record BuybackQueryItem(string ItemTypeName, int Volume);
+public record BuybackQueryItem(string ItemTypeName, long Volume);
 
 public record BackendQueryResult(decimal BuybackAmount, bool OK, string ErrorMessage);
 

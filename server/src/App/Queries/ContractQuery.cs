@@ -5,7 +5,7 @@ namespace EveBuyback.App;
 
 public record ContractQuery(string RawInput) : IRequest<ContractQueryResult>;
 
-public record ContractQueryItem(string ItemTypeName, int Volume);
+public record ContractQueryItem(string ItemTypeName, long Volume);
 
 public record ContractQueryResult(IEnumerable<ContractQueryItem>? Items, bool OK, string ErrorMessage);
 
@@ -36,12 +36,12 @@ internal class ContractQueryHandler : IRequestHandler<ContractQuery, ContractQue
                         "Each line should split into two parts. Parts should be split by a tab or two spaces.");
                 }
 
-                if (!Int32.TryParse(parts[1], NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out var volume))
+                if (!Int64.TryParse(parts[1], NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out var volume))
                 {
                     return new ContractQueryResult(
                         null,
                         false,
-                        "The second part of each line must be a valid 32bit integer that indicates volume.");
+                        "The second part of each line must be a valid 64 bit integer that indicates volume.");
                 }
 
                 items.Add(new ContractQueryItem(parts[0], volume));

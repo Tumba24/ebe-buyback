@@ -5,7 +5,7 @@ namespace EveBuyback.App;
 
 public record RefinedQuery(IEnumerable<RefinedQueryItem> Items, decimal BuybackEfficiencyPercentage) : IRequest<RefinedQueryResult>;
 
-public record RefinedQueryItem(string ItemTypeName, int Volume);
+public record RefinedQueryItem(string ItemTypeName, long Volume);
 
 public record RefinedQueryResult(IEnumerable<RefinedQueryItem> Items, bool OK, string ErrorMessage);
 

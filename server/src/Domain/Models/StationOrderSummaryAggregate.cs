@@ -41,7 +41,7 @@ public class StationOrderSummaryAggregate
         _domainEvents.Add(new InvalidOrderSummaryNoticedEvent(itemType, contractItem.Volume));
     }
 
-    public void UpdateOrderSummary(ItemType item, int volume, IEnumerable<Order> orders, DateTime currentDateTime)
+    public void UpdateOrderSummary(ItemType item, long volume, IEnumerable<Order> orders, DateTime currentDateTime)
     {
         orders = orders?
             .Where(o => 
@@ -65,7 +65,7 @@ public class StationOrderSummaryAggregate
             loopCount++;
         }
     }
-    private int UpdateOrderSummary(ItemType item, int volume, IEnumerable<Order> orders, DateTime currentDateTime, int ordersToSkip)
+    private int UpdateOrderSummary(ItemType item, long volume, IEnumerable<Order> orders, DateTime currentDateTime, int ordersToSkip)
     {
         var ordersToConsider = orders.Skip(ordersToSkip);
 

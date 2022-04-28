@@ -1,3 +1,3 @@
 namespace EveBuyback.Domain;
 
-public record ContractItem(string ItemTypeName, int Volume);
+public record ContractItem(string ItemTypeName, long Volume);

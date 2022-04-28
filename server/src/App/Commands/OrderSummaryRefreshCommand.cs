@@ -8,7 +8,7 @@ public record OrderSummaryRefreshCommand(
     string StationName, 
     IEnumerable<OrderSummaryRefreshCommandItem> Items) : IRequest<OrderSummaryRefreshCommandResult>;
 
-public record OrderSummaryRefreshCommandItem(string ItemTypeName, int Volume);
+public record OrderSummaryRefreshCommandItem(string ItemTypeName, long Volume);
 
 public record OrderSummaryRefreshCommandResult(bool OK, string ErrorMessage);
 
