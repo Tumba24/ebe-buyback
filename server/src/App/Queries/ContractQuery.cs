@@ -36,15 +36,15 @@ internal class ContractQueryHandler : IRequestHandler<ContractQuery, ContractQue
                         "Each line should split into two parts. Parts should be split by a tab or two spaces.");
                 }
 
-                if (!Int64.TryParse(parts[1], NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out var volume))
+                if (!Int64.TryParse(parts[1].Trim(), NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out var volume))
                 {
                     return new ContractQueryResult(
                         null,
                         false,
                         "The second part of each line must be a valid 64 bit integer that indicates volume.");
                 }
-
-                items.Add(new ContractQueryItem(parts[0], volume));
+                
+                items.Add(new ContractQueryItem(parts[0].Trim(), volume));
             }
         }
 
