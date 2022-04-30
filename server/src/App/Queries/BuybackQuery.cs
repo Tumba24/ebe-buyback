@@ -47,9 +47,12 @@ internal class BuybackQueryHandler : IRequestHandler<BuybackQuery, BackendQueryR
         }
 
         var tax = buybackAmount * (query.BuybackTaxPercentage / 100);
+        
+        buybackAmount -= tax;
 
+        buybackAmount = Math.Round(buybackAmount, 2, MidpointRounding.AwayFromZero);
 
-        return new BackendQueryResult(buybackAmount - tax, true, string.Empty); 
+        return new BackendQueryResult(buybackAmount, true, string.Empty); 
     }
 
     private async Task<IEnumerable<ContractItem>> GetContractItems(BuybackQuery query)
