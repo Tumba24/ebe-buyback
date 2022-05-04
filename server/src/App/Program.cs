@@ -8,8 +8,17 @@ using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
-builder.Services.AddControllers(o => o.InputFormatters.Insert(o.InputFormatters.Count, new PlainTextInputFormatter()));
+builder.Services.AddControllers(o => o.InputFormatters.Insert(o.InputFormatters.Count, new PlainTextInputFormatter()))
+    .ConfigureApiBehaviorOptions(options => options.InvalidModelStateResponseFactory = context =>
+    {
+        var errorMessage = context.ModelState?
+            .Values.FirstOrDefault(v => v.Errors.Any())?
+            .Errors?.First()?
+            .ErrorMessage ?? string.Empty;
+
+        throw new BadHttpRequestException(errorMessage, StatusCodes.Status400BadRequest);
+    });
+
 builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
 builder.Services.AddScoped<IItemTypeRepository, InMemoryItemTypeRepository>();
 builder.Services.AddScoped<IOrderRepository, EsiOrderRepository>();
@@ -26,6 +35,9 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 var app = builder.Build();
 
 app.UseForwardedHeaders();
+
+app.UseStatusCodePagesWithReExecute("/error/{0}");
+app.UseExceptionHandler("/error/500");
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

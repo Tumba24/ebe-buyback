@@ -5,7 +5,7 @@ namespace EveBuyback.App;
 
 [ApiController]
 [Route("reprocessing")]
-public class ReprocessingController : ControllerBase
+public class ReprocessingController : Controller
 {
     private readonly IMediator _mediator;
 

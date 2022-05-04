@@ -1,4 +1,3 @@
-using System.Globalization;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,7 +5,7 @@ namespace EveBuyback.App;
 
 [ApiController]
 [Route("buyback")]
-public class BuybackController : ControllerBase
+public class BuybackController : Controller
 {
     private readonly IMediator _mediator;
 
@@ -36,7 +35,7 @@ public class BuybackController : ControllerBase
                 .Select(i => new RefinedQueryItem(i.ItemTypeName, i.Volume));
 
             var refinementResult = await _mediator.Send(new RefinedQuery(refinedQueryItems, buybackEfficiencyPercentage));
-            
+
             if (!refinementResult.OK)
                 return BadRequest(refinementResult.ErrorMessage);
 
