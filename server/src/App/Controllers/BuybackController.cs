@@ -18,7 +18,7 @@ public class BuybackController : Controller
     [HttpPost("calculate")]
     public async Task<ActionResult<decimal>> Calculate(
         [FromBody] string rawInput,
-        string station = "Jita",
+        string? station = "Jita",
         bool shouldCalculateBuybackAfterRefinement = true,
         decimal buybackTaxPercentage = 10,
         decimal buybackEfficiencyPercentage = 75)
