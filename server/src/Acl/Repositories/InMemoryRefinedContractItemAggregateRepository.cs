@@ -20,7 +20,9 @@ public class InMemoryRefinedContractItemAggregateRepository : IRefinedContractIt
         var itemTypeLookup = await _itemTypeRepository.GetLookupByItemTypeId();
         var materialItems = new List<MaterialItem>();
 
-        foreach (var itemTypeId in itemTypeIds)
+        var uniqueItemTypeIds = itemTypeIds.GroupBy(i => i).Select(g => g.Key);
+
+        foreach (var itemTypeId in uniqueItemTypeIds)
             materialItems.AddRange(await GetMaterialItems(itemTypeId));
 
         return new RefinedContractItemAggregate(
