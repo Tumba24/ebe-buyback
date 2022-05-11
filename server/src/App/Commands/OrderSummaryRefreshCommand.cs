@@ -5,7 +5,7 @@ using MediatR;
 namespace EveBuyback.App;
 
 public record OrderSummaryRefreshCommand(
-    string StationName, 
+    string? StationName, 
     IEnumerable<OrderSummaryRefreshCommandItem> Items) : IRequest<OrderSummaryRefreshCommandResult>;
 
 public record OrderSummaryRefreshCommandItem(string ItemTypeName, long Volume);

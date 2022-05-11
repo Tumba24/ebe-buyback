@@ -10,10 +10,10 @@ public class InMemoryStationRepository : IStationRepository
             { "Jita", new Station(10000002, 60003760, "Jita") }
         };
 
-    public Task<Station?> Get(string stationName)
+    public Task<Station?> Get(string? stationName)
     {
         Station? station = null;
-        _stationLookup.TryGetValue(stationName, out station);
+        _stationLookup.TryGetValue(stationName ?? string.Empty, out station);
 
         return Task.FromResult(station);
     }

@@ -5,7 +5,7 @@ using MediatR;
 namespace EveBuyback.App;
 
 public record BuybackQuery(
-    string StationName, 
+    string? StationName, 
     IEnumerable<BuybackQueryItem> Items,
     decimal BuybackTaxPercentage) : IRequest<BackendQueryResult>;
 
