@@ -40,6 +40,10 @@ public class RefinedContractItemAggregate
                 }
 
                 var remainder = contractItem.Volume % contractItem.Item.PortionSize;
+
+                if (remainder > 0)
+                    refinedEvents.Add(new MaterialRefinedEvent(contractItem.Item, remainder));
+
                 var refineableVolume = contractItem.Volume - remainder;
 
                 var volume = refineableVolume * ((decimal)materialItem.Quantity / contractItem.Item.PortionSize);
