@@ -43,11 +43,30 @@ internal class ContractQueryHandler : IRequestHandler<ContractQuery, ContractQue
                         false,
                         "The second part of each line must be a valid 64 bit integer that indicates volume.");
                 }
+
+                var itemTypeName = SanitizeItemTypeName(parts[0]);
                 
-                items.Add(new ContractQueryItem(parts[0].Trim(), volume));
+                items.Add(new ContractQueryItem(itemTypeName, volume));
             }
         }
 
         return new ContractQueryResult(items, true, string.Empty);
+    }
+
+    private string SanitizeItemTypeName(string rawItemTypeName)
+    {
+        var itemTypeName = rawItemTypeName.Trim();
+
+        itemTypeName  = SanitizeEveTranslationAsteriskSuffix(itemTypeName);
+
+        return itemTypeName.Trim();
+
+        string SanitizeEveTranslationAsteriskSuffix(string input)
+        {
+            if (input.EndsWith('*'))
+                input = input.Substring(0, input.Length - 1);
+
+            return input;
+        }
     }
 }
